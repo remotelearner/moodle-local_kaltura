@@ -24,8 +24,16 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(dirname(dirname(__FILE__))) . '/local/kaltura/locallib.php');
 
+require_login(null, false, null, false, true);
+
+if (isguestuser()) {
+    throw new coding_exception('Guest users do not have access to this');
+}
+
 $entry_id = required_param('entry_id', PARAM_TEXT);
 
-$status = check_document_status($entry_id);
+$status = local_kaltura_check_document_status($entry_id);
 
 echo $status;
+
+die();

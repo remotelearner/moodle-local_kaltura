@@ -24,6 +24,12 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(dirname(dirname(__FILE__))) . '/local/kaltura/locallib.php');
 
+require_login(null, false, null, false, true);
+
+if (isguestuser()) {
+    throw new coding_exception('Guest users do not have access to this');
+}
+
 $action = optional_param('kaction', '', PARAM_TEXT);
 $ppt    = optional_param('ppt', '', PARAM_TEXT);
 
@@ -32,7 +38,7 @@ if (0 == strcmp($action, 'ppt')) {
     if (!empty($ppt)) {
 
         $entry_id = $ppt;
-        die(convert_ppt($entry_id));
+        die(local_kaltura_convert_ppt($entry_id));
 
     } else {
         die('n: ERROR - document entry id is missing');
@@ -40,3 +46,4 @@ if (0 == strcmp($action, 'ppt')) {
 
 }
 
+die();
