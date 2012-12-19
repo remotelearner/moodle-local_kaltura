@@ -36,24 +36,18 @@ $courseid   = required_param('courseid', PARAM_INT);
 require_login();
 
 $thumbnail    = '';
-$data         = '';
+$data         = new stdClass();
 $entry_obj    = null;
-
-//$myFile = "/tmp/A.txt";
-//$fh = fopen($myFile, 'w');
-//$stringData = $entry_obj->status;
-//fwrite($fh, $stringData);
-//fclose($fh);
 
 // If request is for a kaltura dynamic player get the entry object disregarding
 // the entry object status
 if (0 == strcmp($widget, 'kdp')) {
 
-    $entry_obj = get_ready_entry_object($entry_id, false);
+    $entry_obj = local_kaltura_get_ready_entry_object($entry_id, false);
 
     // Determine the type of video (See KALDEV-28)
-    if (!video_type_valid($entry_obj)) {
-        $entry_obj = get_ready_entry_object($entry_obj->id, false);
+    if (!local_kaltura_video_type_valid($entry_obj)) {
+        $entry_obj = local_kaltura_get_ready_entry_object($entry_obj->id, false);
     }
 
     $entry_obj->height = !empty($height) ? $height : $entry_obj->height;
@@ -64,11 +58,11 @@ if (0 == strcmp($widget, 'kdp')) {
     if (KalturaEntryStatus::READY == (string) $entry_obj->status) {
 
         // Create the user KS session
-        $session  = generate_kaltura_session(array($entry_obj->id));
+        $session  = local_kaltura_generate_kaltura_session(array($entry_obj->id));
 
-        $data->markup = get_kdp_code($entry_obj, $uiconfid, $courseid, $session);
+        $data->markup = local_kaltura_get_kdp_code($entry_obj, $uiconfid, $courseid, $session);
 
-        if (has_mobile_flavor_enabled() && get_enable_html5()) {
+        if (local_kaltura_has_mobile_flavor_enabled() && local_kaltura_get_enable_html5()) {
             $data->script = 'kAddedScript = false; kCheckAddScript();';
         }
 
@@ -89,12 +83,12 @@ if (0 == strcmp($widget, 'kdp')) {
 } elseif (0 == strcmp($widget, 'kpdp')) {
 // If request is for a kaltura presentation dynamic player, get the entry object only
 // when it is ready
-    $entry_obj  = get_ready_entry_object($entry_id);
+    $entry_obj  = local_kaltura_get_ready_entry_object($entry_id);
 
     $admin_mode = optional_param('admin_mode', 0, PARAM_INT);
     $admin_mode = empty($admin_mode) ? false : true;
 
-    $data->markup = get_kdp_presentation_player($entry_obj, $admin_mode);
+    $data->markup = local_kaltura_get_kdp_presentation_player($entry_obj, $admin_mode);
 
     // Pre-set the height and width of the video presentation popup panel
     $data->height = 400;
@@ -104,4 +98,12 @@ if (0 == strcmp($widget, 'kdp')) {
 
 $data = json_encode($data);
 
+//$myFile = "/tmp/A.txt";
+//$fh = fopen($myFile, 'w');
+//$stringData = 'testing';
+//fwrite($fh, $data);
+//fclose($fh);
+
 echo $data;
+
+die();

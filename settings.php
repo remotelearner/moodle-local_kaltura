@@ -55,39 +55,56 @@ $enable_api_calls = $settings_page || $upgrade_page || $global_search_page;
 
 if ($hassiteconfig) {
 
+    global $SESSION;
 
+    // Add local plug-in configuration settings link to the navigation block
     $settings = new admin_settingpage('local_kaltura', get_string('pluginname', 'local_kaltura'));
     $ADMIN->add('localplugins', $settings);
 
     $settings->add(new admin_setting_heading('kaltura_conn_heading', get_string('conn_heading_title', 'local_kaltura'),
                        get_string('conn_heading_desc', 'local_kaltura')));
 
-
     // Connection status headers
     $initialized = false;
 
-    // Check to see if the username has changed
-    $login = get_config(KALTURA_PLUGIN_NAME, 'login');
-    $login_previous = get_config(KALTURA_PLUGIN_NAME, 'login_previous');
+    // Check to see if the username, password or uri has changed
+    $login              = get_config(KALTURA_PLUGIN_NAME, 'login');
+    $login_previous     = get_config(KALTURA_PLUGIN_NAME, 'login_previous');
+    $password           = get_config(KALTURA_PLUGIN_NAME, 'password');
+    $password_previous  = get_config(KALTURA_PLUGIN_NAME, 'password_previous');
+    $uri                = get_config(KALTURA_PLUGIN_NAME, 'uri');
+    $uri_previous       = get_config(KALTURA_PLUGIN_NAME, 'uri_previous');
 
+    // Check if a new URI has been entered
+    $new_uri = ( ($uri && !$uri_previous) || (0 != strcmp($uri, $uri_previous)) ) ? true : false;
 
     // Must be the first time they saved data.  Retrieve Kaltura account and initiate becon to kaltura
-    if (($login && !$login_previous) ||
-        ($login != $login_previous) ) {
+    $new_login = ( ($login && !$login_previous) || (0 != strcmp($login, $login_previous)) ) ?
+                    true : false;
 
-        set_config('login_previous', $login, KALTURA_PLUGIN_NAME);
+    // If the login is the same check if the user updated the password
+    $new_passwd = ( ($password && !$password_previous) || (0 != strcmp($password, $password_previous)) ) ?
+                        true : false;
 
-        $password = get_config(KALTURA_PLUGIN_NAME, 'password');
+    if ($new_uri || $new_login || $new_passwd) {
+
         $uri = get_config(KALTURA_PLUGIN_NAME, 'uri');
 
-        $initialized = initialize_account($login, $password, $uri);
+        $initialized = local_kaltura_initialize_account($login, $password, $uri);
 
         if (empty($initialized)) {
-            uninitialize_account();
+            local_kaltura_uninitialize_account();
         }
 
-    } else if (0 == strcmp($login, $login_previous)) {
+        set_config('uri_previous', $uri, KALTURA_PLUGIN_NAME);
+        set_config('login_previous', $login, KALTURA_PLUGIN_NAME);
+        set_config('password_previous', $password, KALTURA_PLUGIN_NAME);
 
+        unset($SESSION->kaltura_con);
+        unset($SESSION->kaltura_con_timeout);
+        unset($SESSION->kaltura_con_timestarted);
+
+    } else {
 
         // May need to set the URI setting beause if was originally
         // disabled then the form will not submit the default URI
@@ -98,18 +115,18 @@ if ($hassiteconfig) {
             set_config('uri', KALTURA_DEFAULT_URI, KALTURA_PLUGIN_NAME);
         }
 
+    }
 
-        if ($enable_api_calls) {
+    if ($enable_api_calls) {
 
-            $session = login(true, '');
+        $session = local_kaltura_login(true, '', KALTURA_SESSION_LENGTH, true);
 
-            if (!empty($session)) {
-                $settings->add(new admin_setting_heading('conn_status', get_string('conn_status_title', 'local_kaltura'),
-                                                         get_string('conn_success', 'local_kaltura')));
-            } else {
-                $settings->add(new admin_setting_heading('conn_status', get_string('conn_status_title', 'local_kaltura'),
-                                                         get_string('conn_failed', 'local_kaltura')));
-            }
+        if (!empty($session)) {
+            $settings->add(new admin_setting_heading('conn_status', get_string('conn_status_title', 'local_kaltura'),
+                                                     get_string('conn_success', 'local_kaltura')));
+        } else {
+            $settings->add(new admin_setting_heading('conn_status', get_string('conn_status_title', 'local_kaltura'),
+                                                     get_string('conn_failed', 'local_kaltura')));
         }
     }
 
@@ -141,8 +158,26 @@ if ($hassiteconfig) {
     $adminsetting->plugin = KALTURA_PLUGIN_NAME;
     $settings->add($adminsetting);
 
+
+    // Kaltura reports section
+    $settings->add(new admin_setting_heading('kaltura_kalreports_heading',
+                   get_string('kaltura_kalreports_heading', 'local_kaltura'), ''));
+
+
+    $adminsetting = new admin_setting_configtext('report_uri', get_string('report_server_uri', 'local_kaltura'),
+                       get_string('report_server_uri_desc', 'local_kaltura'), KALTURA_REPORT_DEFAULT_URI, PARAM_URL);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+    $adminsetting = new admin_setting_configcheckbox('enable_reports', get_string('enable_reports', 'local_kaltura'),
+                       get_string('enable_reports_desc', 'local_kaltura'), '0');
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+
+    // Kaltura regular player selection
     if ($enable_api_calls) {
-        $players = get_custom_players();
+        $players = local_kaltura_get_custom_players();
     }
 
     // Initialize KCW options
@@ -242,6 +277,21 @@ if ($hassiteconfig) {
     $adminsetting->plugin = KALTURA_PLUGIN_NAME;
     $settings->add($adminsetting);
 
+    // Kaltura simple uploader player selection
+    $ksu_choices = array(KALTURA_PLAYER_KSU => get_string('simple_uploader', 'local_kaltura'),
+                        0 => get_string('custom_player', 'local_kaltura'));
+
+    $adminsetting = new admin_setting_configselect('simple_uploader', get_string('kaltura_simple_uploader', 'local_kaltura'),
+                       get_string('kaltura_simple_uploader_desc', 'local_kaltura'), KALTURA_PLAYER_KSU, $ksu_choices);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+    $adminsetting = new admin_setting_configtext('simple_uploader_custom', get_string('kaltura_simple_uploader_cust', 'local_kaltura'),
+                       get_string('kaltura_simple_uploader_cust_desc', 'local_kaltura'), '', PARAM_INT);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+
     // Kaltura My Media settings
     $settings->add(new admin_setting_heading('kaltura_mymedia_heading',
                    get_string('kaltura_mymedia_title', 'local_kaltura'), ''));
@@ -270,6 +320,20 @@ if ($hassiteconfig) {
                        get_string('kaltura_uploader_custom_desc', 'local_kaltura'), '', PARAM_INT);
     $adminsetting->plugin = KALTURA_PLUGIN_NAME;
     $settings->add($adminsetting);
+
+    $mymedia_scr_choices = array(KALTURA_PLAYER_MYMEDIA_SCREEN_RECORDER => get_string('player_mymedia_screen_recorder', 'local_kaltura'),
+                             0 => get_string('custom_screen_recorder', 'local_kaltura'));
+
+    $adminsetting = new admin_setting_configselect('mymedia_screen_recorder', get_string('mymedia_screen_recorder', 'local_kaltura'),
+                       get_string('mymedia_screen_recorder_desc', 'local_kaltura'), KALTURA_PLAYER_MYMEDIA_SCREEN_RECORDER, $mymedia_scr_choices);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+    $adminsetting = new admin_setting_configtext('mymedia_screen_recorder_custom', get_string('kaltura_screen_recorder_custom', 'local_kaltura'),
+                       get_string('kaltura_screen_recorder_custom_desc', 'local_kaltura'), '', PARAM_INT);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
 
     // Kaltura Filter Plug-in settings
     $settings->add(new admin_setting_heading('kaltura_filter_heading',
@@ -300,6 +364,11 @@ if ($hassiteconfig) {
 
     $adminsetting = new admin_setting_configcheckbox('enable_html5', get_string('enable_html5', 'local_kaltura'),
                        get_string('enable_html5_desc', 'local_kaltura'), '0');
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+    $adminsetting = new admin_setting_configcheckbox('enable_screen_recorder', get_string('enable_screen_recorder', 'local_kaltura'),
+                       get_string('enable_screen_recorder_desc', 'local_kaltura'), '1');
     $adminsetting->plugin = KALTURA_PLUGIN_NAME;
     $settings->add($adminsetting);
 

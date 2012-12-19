@@ -61,6 +61,13 @@ class KalturaClientBase
 	const KALTURA_SERVICE_FORMAT_XML  = 2;
 	const KALTURA_SERVICE_FORMAT_PHP  = 3;
 
+    // KS V2 constants
+    const RANDOM_SIZE = 16;
+
+    const FIELD_EXPIRY =              '_e';
+    const FIELD_TYPE =                '_t';
+    const FIELD_USER =                '_u';
+
 	/**
 	 * @var string
 	 */
@@ -651,6 +658,51 @@ class KalturaClientBase
         return KalturaNull::getInstance();
 	}
 
+    public static function generateSessionV2($adminSecretForSigning, $userId, $type, $partnerId, $expiry, $privileges)
+    {
+        // build fields array
+        $fields = array();
+        foreach (explode(',', $privileges) as $privilege)
+        {
+            $privilege = trim($privilege);
+            if (!$privilege)
+                continue;
+            if ($privilege == '*')
+                $privilege = 'all:*';
+            $splittedPrivilege = explode(':', $privilege, 2);
+            if (count($splittedPrivilege) > 1)
+                $fields[$splittedPrivilege[0]] = $splittedPrivilege[1];
+            else
+                $fields[$splittedPrivilege[0]] = '';
+        }
+        $fields[self::FIELD_EXPIRY] = time() + $expiry;
+        $fields[self::FIELD_TYPE] = $type;
+        $fields[self::FIELD_USER] = $userId;
+
+        // build fields string
+        $fieldsStr = http_build_query($fields, '', '&');
+        $rand = '';
+        for ($i = 0; $i < self::RANDOM_SIZE; $i++)
+                $rand .= chr(rand(0, 0xff));
+        $fieldsStr = $rand . $fieldsStr;
+        $fieldsStr = sha1($fieldsStr, true) . $fieldsStr;
+
+        // encrypt and encode
+        $encryptedFields = self::aesEncrypt($adminSecretForSigning, $fieldsStr);
+        $decodedKs = "v2|{$partnerId}|" . $encryptedFields;
+        return str_replace(array('+', '/'), array('-', '_'), base64_encode($decodedKs));
+    }
+
+    protected static function aesEncrypt($key, $message)
+    {
+        return mcrypt_encrypt(
+            MCRYPT_RIJNDAEL_128,
+            substr(sha1($key, true), 0, 16),
+            $message,
+            MCRYPT_MODE_CBC,
+            str_repeat("\0", 16)    // no need for an IV since we add a random string to the message anyway
+        );
+    }
 }
 
 /**
@@ -933,5 +985,4 @@ interface IKalturaLogger
 {
 	function log($msg);
 }
-
 

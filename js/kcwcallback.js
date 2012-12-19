@@ -9,7 +9,7 @@
  * @param object - some form of an entry id object
  */
 function onContributionWizardAfterAddEntry(param) {
-    
+
     var entry_id = (param[0].uniqueID == null ? param[0].entryId : param[0].uniqueID);
     
     if (null !== document.getElementById("entry_id")) {
@@ -19,7 +19,6 @@ function onContributionWizardAfterAddEntry(param) {
     if (null !== document.getElementById("notification")) {
         document.getElementById("notification").innerHTML = "Video added";
     }
-
     
     // Check if the current page has the video resource instance form loaded
     if (null != document.getElementById("page-mod-kalvidres-mod")) {
@@ -45,7 +44,7 @@ function onContributionWizardAfterAddEntry(param) {
     }
 
 
-    
+
     // The code below is specific for the video presentation.
     // Check for the existence of the KSU uploader function 
     // and shift group of document related to line up with the transparent
@@ -112,6 +111,23 @@ function onContributionWizardClose() {
 
     }
 
+    if (null !== document.getElementById("block_kaltura_notification")) {
+
+        if ( document.createEvent ) {
+
+            // Fire a click event for most browsers
+            var evt = document.createEvent("MouseEvent");
+            evt.initEvent("click", true, true);
+            document.getElementById("block_kaltura_notification").dispatchEvent(evt);
+
+        } else if ( document.createEventObject ) {
+
+            // Fire click event for IE5 - IE7
+            var element = document.getElementById("block_kaltura_notification");
+            element.fireEvent("onclick");
+        }
+    }
+
     // unhide WYSIWYG iframe see KALDEV-105 for details
     if (null !== document.getElementById("id_introeditor_ifr")) {
         document.getElementById("id_introeditor_ifr").style.display = '';
@@ -153,9 +169,10 @@ function enable_video_assign_button() {
  * file picker widget
  */
 function user_selected() {
-    M.local_kaltura.show_loading();
-    
+	document.getElementById("progress_gif").style.display = "inline";
+    document.getElementById("progress_gif").style.visibility = "visible";
     document.getElementById("uploader").upload();
+    
 }
 
 function uploading() {
@@ -167,7 +184,6 @@ function uploading() {
  * addEntries event
  */
 function uploaded() {
-    
     document.getElementById("uploader").addEntries();
 }
 
@@ -179,7 +195,7 @@ function uploaded() {
  * @param obj
  */
 function entries_added(obj) {
-    
+
     var txt_document = "Document is currently being converted." +
                        " Click on 'Check status' periodically.  " +
                        "The save buttons will be disabled until the document has finished converting.";
@@ -234,7 +250,9 @@ function entries_added(obj) {
 
     document.getElementById("uploader").removeFiles(0,0);
 
-    M.local_kaltura.hide_loading();
+    //M.local_kaltura.hide_loading();
+    document.getElementById("progress_gif").style.visibility = "hidden";
+    document.getElementById("progress_gif").style.display = "none";
     
     
 }

@@ -14,19 +14,42 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Kaltura video assignment grade preferences form
+ * My Media display library
  *
  * @package    local
- * @subpackage kaltura
+ * @subpackage mymedia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
 }
 
-$plugin->version            = 2012121900;
-$plugin->component          = 'local_kaltura';
-$plugin->release            = 'Kaltura release 3.0.91';
-$plugin->requires           = 2011033007;
-$plugin->system_version     = 2.1; // Used to send information to Kaltura
+require_once(dirname(dirname(dirname(__FILE__))) . '/lib/tablelib.php');
+
+class local_kaltura_renderer extends plugin_renderer_base {
+
+    public function create_report_iframe($weak_session) {
+        $html        = '';
+        $report_url  = get_config(KALTURA_PLUGIN_NAME, 'report_uri');
+
+        // Remove trailing slash
+        $trailing_slash = strrpos($report_url, '/') + 1;
+        $length         = strlen($report_url);
+
+        if ($trailing_slash == $length) {
+            $report_url = rtrim($report_url, '/');
+        }
+
+        $html = <<<EOT
+<div class="resourcecontent resourcegeneral">
+  <iframe id="resourceobject" src="{$report_url}/index.php/plugin/CategoryMediaReportAction?hpks={$weak_session}" width="700" height="700">
+  </iframe>
+</div>
+EOT;
+
+        return $html;
+
+    }
+}

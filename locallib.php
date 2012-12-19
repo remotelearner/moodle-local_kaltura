@@ -28,6 +28,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 define('KALTURA_PLUGIN_NAME', 'local_kaltura');
 define('KALTURA_DEFAULT_URI', 'http://www.kaltura.com');
+define('KALTURA_REPORT_DEFAULT_URI', 'http://apps.kaltura.com/hosted_pages');
 
 define('KALTURA_PLAYER_UPLOADERREGULAR',                6709401); // KCW
 define('KALTURA_PLAYER_PLAYERREGULARDARK',              6709411); // KDP dark
@@ -35,9 +36,13 @@ define('KALTURA_PLAYER_PLAYERREGULARLIGHT',             6709421); // KDP light
 define('KALTURA_PLAYER_PLAYERVIDEOPRESENTATION',        4860481);
 define('KALTURA_FILE_UPLAODER',                         6386311); // KSU
 define('KALTURA_PLAYER_MYMEDIA_UPLOADER',               8464961); // KCW
+define('KALTURA_PLAYER_MYMEDIA_SCREEN_RECORDER',        9780761); // KSR
+define('KALTURA_PLAYER_KSU',                            1002613); // KSU
 
 define('KALTURA_FILTER_VIDEO_WIDTH', 400);
 define('KALTURA_FILTER_VIDEO_HEIGHT', 300);
+
+define('KALTURA_SESSION_LENGTH', 10800); // 3 hours
 
 require_once(dirname(__FILE__) . '/API/KalturaClient.php');
 require_once(dirname(__FILE__) . '/kaltura_entries.class.php');
@@ -49,12 +54,23 @@ require_once(dirname(__FILE__) . '/kaltura_entries.class.php');
  * @param string - password
  * @param string - URI
  *
- * Return boolean - tru on success or false
+ * Return boolean - true on success or false
  */
-function initialize_account($login, $password, $uri = '') {
+function local_kaltura_initialize_account($login, $password, $uri = '') {
+    global $CFG;
 
     try {
         $config_obj = new KalturaConfiguration(0);
+
+        $config_obj->clientTag = local_kaltura_create_client_tag();
+
+        if (!empty($CFG->proxyhost)) {
+            $config_obj->proxyHost = $CFG->proxyhost;
+            $config_obj->proxyPort = $CFG->proxyport;
+            $config_obj->proxyType = $CFG->proxytype;
+            $config_obj->proxyUser = ($CFG->proxyuser)? $CFG->proxyuser : null;
+            $config_obj->proxyPassword = ($CFG->proxypassword && $CFG->proxyuser)? $CFG->proxypassword: null;
+        }
 
         if (!empty($uri)) {
             $config_obj->serviceUrl = $uri;
@@ -93,7 +109,7 @@ function initialize_account($login, $password, $uri = '') {
             // disabled then the form will not submit the default URI
             set_config('uri', KALTURA_DEFAULT_URI, KALTURA_PLUGIN_NAME);
 
-            send_initialization($admin_session);
+            local_kaltura_send_initialization($admin_session);
 
         }
 
@@ -107,7 +123,7 @@ function initialize_account($login, $password, $uri = '') {
     }
 }
 
-function uninitialize_account() {
+function local_kaltura_uninitialize_account() {
     set_config('secret', '', KALTURA_PLUGIN_NAME);
     set_config('adminsecret', '', KALTURA_PLUGIN_NAME);
     set_config('partner_id', '', KALTURA_PLUGIN_NAME);
@@ -117,8 +133,9 @@ function uninitialize_account() {
  * Send initializations information to the Kaltura server
  *
  * @param string - kaltura session string
+ * @return nothing
  */
-function send_initialization($session) {
+function local_kaltura_send_initialization($session) {
 
     global $CFG;
 
@@ -137,7 +154,6 @@ function send_initialization($session) {
 
     curl_exec($ch);
     curl_close($ch);
-
 }
 
 
@@ -150,16 +166,17 @@ function send_initialization($session) {
  *
  * @return obj - KalturaClient
  */
-function login($admin = false, $privileges = '', $expiry = 86400) {
+function local_kaltura_login($admin = false, $privileges = '', $expiry = 10800, $test_conn = false) {
     global $USER;
 
-    list($login, $password) = get_credentials();
+    list($login, $password) = local_kaltura_get_credentials();
+
 
     if (empty($login) || empty($password)) {
         return false;
     }
 
-    $config_obj = get_configuration_obj();
+    $config_obj = local_kaltura_get_configuration_obj();
 
     if (empty($config_obj) || !($config_obj instanceof KalturaConfiguration)) {
         return false;
@@ -174,13 +191,19 @@ function login($admin = false, $privileges = '', $expiry = 86400) {
     $partner_id = $client_obj->getConfig()->partnerId;
     $secret     = get_config(KALTURA_PLUGIN_NAME, 'adminsecret');
 
+    if (isloggedin()) {
+        $username = $USER->username;
+    } else {
+        $username = null;
+    }
+
     if ($admin) {
 
-        $session = $client_obj->generateSession($secret, $USER->username, KalturaSessionType::ADMIN,
+        $session = $client_obj->generateSession($secret, $username, KalturaSessionType::ADMIN,
                                      $partner_id, $expiry, $privileges);
     } else {
 
-        $session = $client_obj->generateSession($secret, $USER->username, KalturaSessionType::USER,
+        $session = $client_obj->generateSession($secret, $username, KalturaSessionType::USER,
                                      $partner_id, $expiry, $privileges);
     }
 
@@ -188,10 +211,12 @@ function login($admin = false, $privileges = '', $expiry = 86400) {
 
         $client_obj->setKs($session);
 
-        $result = test_connection($client_obj);
+        if ($test_conn) {
+            $result = local_kaltura_test_connection($client_obj);
 
-        if (empty($result)) {
-            return false;
+            if (empty($result)) {
+                return false;
+            }
         }
 
         return $client_obj;
@@ -199,6 +224,82 @@ function login($admin = false, $privileges = '', $expiry = 86400) {
     } else {
         return false;
     }
+
+}
+
+function local_kaltura_generate_weak_kaltura_session($courseid, $course_name) {
+    global $CFG, $USER, $DB;
+
+    $config_obj = local_kaltura_get_report_configuration_obj();
+
+    if (empty($config_obj) || !($config_obj instanceof KalturaConfiguration)) {
+        return false;
+    }
+
+    $client_obj = new KalturaClient($config_obj);
+
+    if (empty($client_obj)) {
+        return false;
+    }
+
+    $kaltura = new kaltura_connection();
+    $connection = $kaltura->get_connection(true, KALTURA_SESSION_LENGTH);
+
+    if (empty($connection)) {
+        return '';
+    }
+
+    $kaltura_version = get_config(KALTURA_PLUGIN_NAME, 'version');
+    $kal_category    = repository_kaltura_create_course_category($connection, $courseid);
+
+    $context     = get_context_instance(CONTEXT_COURSE, $courseid);
+    $students    = count_enrolled_users($context, 'moodle/grade:view');
+
+    $secret = get_config(KALTURA_PLUGIN_NAME, 'adminsecret');
+    $partner_id = get_config(KALTURA_PLUGIN_NAME, 'partner_id');
+
+    $username = null;
+
+    if (isloggedin()) {
+        $username = $USER->username;
+    }
+//TOOD: LOOK INTO THE CALLING OF A NON OBJECT
+//var_dump($kal_category);
+
+    $privilege = array(
+        'app' => 'moodle',
+        'userId' => $username,
+        'returnUrl' => $CFG->wwwroot . '/local/kaltura/reports.php?couseid=' . $courseid,
+        'parentUrl' => $CFG->wwwroot,
+        'appVersion' => $kaltura_version,
+        'locale' => 'en',
+        'frameWidth' => '800',
+        'frameHeight' => '600',
+        //'cssUrl' => '',
+        'tz' => '300', // 60*5 = EST = GMT+5
+        'categoryId' => $kal_category->id,
+        'courseName' => $course_name,
+        'totalUsersCount' => $students,
+    );
+
+    $priv_str  = '';
+
+    foreach ($privilege as $key => $val) {
+        $priv_str .= ','.$key.':'.$val;
+    }
+
+    $privilege = ltrim($priv_str, ',');
+
+    if (function_exists('mcrypt_encrypt')) {
+        $ks = $client_obj->generateSessionV2($secret, $username, KalturaSessionType::USER,
+                                             $partner_id, 10800, $privilege);
+
+    } else {
+        $ks = $client_obj->generateSession($secret, $username, KalturaSessionType::USER,
+                                             $partner_id, 10800, $privilege);
+    }
+
+    return $ks;
 
 }
 
@@ -210,10 +311,10 @@ function login($admin = false, $privileges = '', $expiry = 86400) {
  * @param string - privilege string
  * @return array - an array of Kaltura video entry ids
  */
-function generate_kaltura_session($video_list = array()) {
+function local_kaltura_generate_kaltura_session($video_list = array()) {
     global $USER;
 
-    $config_obj = get_configuration_obj();
+    $config_obj = local_kaltura_get_configuration_obj();
 
     if (empty($config_obj) || !($config_obj instanceof KalturaConfiguration)) {
         return false;
@@ -230,8 +331,13 @@ function generate_kaltura_session($video_list = array()) {
     $secret     = get_config(KALTURA_PLUGIN_NAME, 'adminsecret');
     $partner_id = get_config(KALTURA_PLUGIN_NAME, 'partner_id');
 
-    $session = $client_obj->generateSession($secret, $USER->username, KalturaSessionType::USER,
-                                            $partner_id, 86400, $privilege);
+    if (isloggedin()) {
+        $username = $USER->username;
+    } else {
+        $username = null;
+    }
+    $session = $client_obj->generateSession($secret, $username, KalturaSessionType::USER,
+                                            $partner_id, KALTURA_SESSION_LENGTH, $privilege);
 
     return $session;
 }
@@ -242,7 +348,7 @@ function generate_kaltura_session($video_list = array()) {
  * @return array - login, password or an array of false values if none
  * were found
  */
-function get_credentials() {
+function local_kaltura_get_credentials() {
 
     $login = false;
     $password = false;
@@ -258,11 +364,11 @@ function get_credentials() {
  *
  * @return obj - KalturaConfiguration
  */
-function get_configuration_obj() {
+function local_kaltura_get_configuration_obj() {
     global $CFG;
 
-    $partner_id = get_config(KALTURA_PLUGIN_NAME, 'partner_id');
-    $uri        = get_host();
+    $partner_id = local_kaltura_get_partner_id();
+    $uri        = local_kaltura_get_host();
 
     if (empty($partner_id)) {
         return false;
@@ -270,6 +376,38 @@ function get_configuration_obj() {
 
     $config_obj = new KalturaConfiguration($partner_id);
     $config_obj->serviceUrl = $uri;
+    $config_obj->clientTag = local_kaltura_create_client_tag();
+
+
+    if (!empty($CFG->proxyhost)) {
+        $config_obj->proxyHost = $CFG->proxyhost;
+        $config_obj->proxyPort = $CFG->proxyport;
+        $config_obj->proxyType = $CFG->proxytype;
+        $config_obj->proxyUser = ($CFG->proxyuser)? $CFG->proxyuser : null;
+        $config_obj->proxyPassword = ($CFG->proxypassword && $CFG->proxyuser)? $CFG->proxypassword: null;
+    }
+    return $config_obj;
+}
+
+/**
+ * Retrieve an instance of the KalturaConfiguration class
+ *
+ * @return obj - KalturaConfiguration
+ */
+function local_kaltura_get_report_configuration_obj() {
+    global $CFG;
+
+    $partner_id = local_kaltura_get_partner_id();
+    $uri        = get_config(KALTURA_PLUGIN_NAME, 'report_uri');
+
+    if (empty($partner_id)) {
+        return false;
+    }
+
+    $config_obj = new KalturaConfiguration($partner_id);
+    $config_obj->serviceUrl = $uri;
+    $config_obj->clientTag = local_kaltura_create_client_tag();
+
 
     if (!empty($CFG->proxyhost)) {
         $config_obj->proxyHost = $CFG->proxyhost;
@@ -284,7 +422,7 @@ function get_configuration_obj() {
 /**
  * Returns the test connection markup
  */
-function testconnection_markup() {
+function local_kaltura_testconnection_markup() {
 
     $markup = '';
 
@@ -304,13 +442,13 @@ function testconnection_markup() {
  * Retrieve a list of all the custom players available to the account
  */
 
-function get_custom_players() {
+function local_kaltura_get_custom_players() {
 
 
     try {
         $custom_players = array();
 
-        $client_obj = login(true, '');
+        $client_obj = local_kaltura_login(true, '');
 
         if (empty($client_obj)) {
             return $custom_players;
@@ -348,7 +486,7 @@ function get_custom_players() {
  *
  * @return int - uiconf id of the type of player requested
  */
-function get_player_uiconf($type = 'player') {
+function local_kaltura_get_player_uiconf($type = 'player') {
 
     $uiconf = 0;
 
@@ -357,10 +495,13 @@ function get_player_uiconf($type = 'player') {
         case 'player_resource':
         case 'res_uploader':
         case 'pres_uploader':
-        case 'mymedia_uploader':
-        case 'assign_uploader':
         case 'presentation':
+        case 'mymedia_uploader':
+        case 'mymedia_screen_recorder':
+        case 'assign_uploader':
         case 'player_filter':
+        case 'simple_uploader';
+
             $uiconf = get_config(KALTURA_PLUGIN_NAME, $type);
 
             if (empty($uiconf)) {
@@ -382,18 +523,28 @@ function get_player_uiconf($type = 'player') {
  *
  * @return string - 1 if override is required, else 0
  */
-function get_player_override() {
+function local_kaltura_get_player_override() {
     return get_config(KALTURA_PLUGIN_NAME, 'player_resource_override');
 }
 
 /**
- * Return the host URI
+ * Return the host URI and removes trailing slash
  *
  * @return string - host URI
  */
-function get_host() {
-    //return 'http://lbd.kaltura.com';
-    return get_config(KALTURA_PLUGIN_NAME, 'uri');
+function local_kaltura_get_host() {
+
+    $uri = get_config(KALTURA_PLUGIN_NAME, 'uri');
+
+    // Remove trailing slash
+    $trailing_slash = strrpos($uri, '/') + 1;
+    $length         = strlen($uri);
+
+    if ($trailing_slash == $length) {
+        $uri = rtrim($uri, '/');
+    }
+
+    return $uri;
 }
 
 /**
@@ -401,7 +552,7 @@ function get_host() {
  *
  * @return int - partner Id
  */
-function get_partner_id() {
+function local_kaltura_get_partner_id() {
     return get_config(KALTURA_PLUGIN_NAME, 'partner_id');
 }
 
@@ -413,20 +564,20 @@ function get_partner_id() {
  *
  * @return string - Javascript used by the KCW
  */
-function get_kcw($type = 'res_uploader', $admin = false) {
+function local_kaltura_get_kcw($type = 'res_uploader', $admin = false) {
 
-    $client_obj = login(true);
+    $client_obj = local_kaltura_login(true);
 
     if (empty($client_obj)) {
         return '';
     }
 
-    $kal_user   = init_kaltura_user($admin);
-    $vars       = get_flashvars($client_obj, $kal_user);
-    $uiconf     = get_player_uiconf($type);
-    $url        = get_kcw_url($client_obj, $uiconf);
+    $kal_user   = local_kaltura_init_kaltura_user($admin);
+    $vars       = local_kaltura_get_flashvars($client_obj, $kal_user);
+    $uiconf     = local_kaltura_get_player_uiconf($type);
+    $url        = local_kaltura_get_kcw_url($client_obj, $uiconf);
 
-    return get_kcw_code('', $url, $vars);
+    return local_kaltura_get_kcw_code('', $url, $vars);
 }
 
 /**
@@ -436,7 +587,7 @@ function get_kcw($type = 'res_uploader', $admin = false) {
  *
  * @return object - KalturaUser object
  */
-function init_kaltura_user($admin = false) {
+function local_kaltura_init_kaltura_user($admin = false) {
     global $USER;
 
     $user               = new KalturaUser();
@@ -458,7 +609,7 @@ function init_kaltura_user($admin = false) {
  *
  * @return string URL used by the SWFObject
  */
-function get_kcw_url($client_obj, $uiconf_id) {
+function local_kaltura_get_kcw_url($client_obj, $uiconf_id) {
 
     return $client_obj->getConfig()->serviceUrl . '/kcw/ui_conf_id/' . $uiconf_id;
 }
@@ -471,7 +622,7 @@ function get_kcw_url($client_obj, $uiconf_id) {
  *
  * @return string URL used by the SWFObject
  */
-function get_kdp_presentation_url($client_obj, $uiconf_id) {
+function local_kaltura_get_kdp_presentation_url($client_obj, $uiconf_id) {
 
     return $client_obj->getConfig()->serviceUrl . '/kwidget/wid/_'.
            $client_obj->getConfig()->partnerId . '/uiconf_id/' . $uiconf_id;
@@ -484,16 +635,16 @@ function get_kdp_presentation_url($client_obj, $uiconf_id) {
  *
  * @return obj - flash vars as an object with properties
  */
-function get_uploader_flashvars($admin = false) {
+function local_kaltura_get_uploader_flashvars($admin = false) {
 
-    $client_obj = login(true);
+    $client_obj = local_kaltura_login(true);
 
     if (empty($client_obj)) {
         return '';
     }
 
-    $uiconf     = get_uploader_uiconfid();
-    $partner_id = get_partner_id();
+    $uiconf     = local_kaltura_get_player_uiconf('simple_uploader');
+    $partner_id = local_kaltura_get_partner_id();
     $var_string = '';
 
     $vars = array();
@@ -526,7 +677,7 @@ function get_uploader_flashvars($admin = false) {
  *
  * @return string - querystring of flashvars
  */
-function get_swfdoc_flashvars($client_obj, $entry_id = '', $admin_mode = false) {
+function local_kaltura_get_swfdoc_flashvars($client_obj, $entry_id = '', $admin_mode = false) {
 
     global $USER;
 
@@ -535,9 +686,9 @@ function get_swfdoc_flashvars($client_obj, $entry_id = '', $admin_mode = false) 
     $vars = array();
     $vars['showCloseButton'] = 'true';
     $vars['close'] = 'onContributionWizardClose';
-    $vars['host']  = str_replace('http://', '', get_host());
-    $vars['partnerid']  = get_partner_id();
-    $vars['subpid']     = get_partner_id() * 100; // http://www.kaltura.org/kaltura-terminology#kaltura-sub-partner-id
+    $vars['host']  = str_replace('http://', '', local_kaltura_get_host());
+    $vars['partnerid']  = local_kaltura_get_partner_id();
+    $vars['subpid']     = local_kaltura_get_partner_id() * 100; // http://www.kaltura.org/kaltura-terminology#kaltura-sub-partner-id
     $vars['uid']        = $USER->username;
     $vars['debugMode'] = '1';
     $vars['kshowId'] = '-1';
@@ -569,7 +720,7 @@ function get_swfdoc_flashvars($client_obj, $entry_id = '', $admin_mode = false) 
  *
  * @return string - querystring of flashvars
  */
-function get_flashvars($client_obj, $user_obj, $params = array()) {
+function local_kaltura_get_flashvars($client_obj, $user_obj, $params = array()) {
 
     $var_string = '';
 
@@ -584,6 +735,8 @@ function get_flashvars($client_obj, $user_obj, $params = array()) {
     //$vars['showCloseButton']    = 1;
     //$vars['partnerData'] = '';
 
+    $vars = array_merge($vars, $params);
+
     foreach($vars as $key => $data) {
         $var_string .= $key . '=' . urlencode($data) . '&';
     }
@@ -593,7 +746,7 @@ function get_flashvars($client_obj, $user_obj, $params = array()) {
     return $var_string;
 }
 
-function get_kcw_code($class = '', $swf_url, $flash_vars) {
+function local_kaltura_get_kcw_code($class = '', $swf_url, $flash_vars) {
     global $_SERVER;
 
     $output = '';
@@ -761,7 +914,7 @@ function get_kcw_code($class = '', $swf_url, $flash_vars) {
 
 }
 
-function get_kdp_presentation_code($class = '', $swf_url, $flash_vars) {
+function local_kaltura_get_kdp_presentation_code($class = '', $swf_url, $flash_vars) {
     global $_SERVER;
 
     $output = '';
@@ -938,21 +1091,27 @@ function get_kdp_presentation_code($class = '', $swf_url, $flash_vars) {
  * @param int - Moodle course id (optional).  This parameter is required in
  * order to generate Kaltura analytics data.
  * @param string - A kaltura session string
+ * @param int - a unique identifier, this value is appented to 'kaltura_player_'
+ * and is used as the id of the object tag
  *
  * @return string - HTML markup
  */
-function get_kdp_code($entry_obj, $uiconf_id = 0, $courseid = 0, $session = '') {
+function local_kaltura_get_kdp_code($entry_obj, $uiconf_id = 0, $courseid = 0, $session = '', $uid = 0) {
 
-    if (!is_valid_entry_object($entry_obj)) {
+    if (!local_kaltura_is_valid_entry_object($entry_obj)) {
         return 'Unable to play video ('. $entry_obj->id . ') please contact your site administrator.';
     }
 
-    $uid        = floor(microtime(true));
-    $host       = get_host();
-    $flash_vars = get_kdp_flashvars($courseid, $session);
+    if (0 == $uid) {
+        $uid  = floor(microtime(true));
+        $uid .= '_' . mt_rand();
+    }
+
+    $host       = local_kaltura_get_host();
+    $flash_vars = local_kaltura_get_kdp_flashvars($courseid, $session);
 
     if (empty($uiconf_id)) {
-        $uiconf = get_player_uiconf('player');
+        $uiconf = local_kaltura_get_player_uiconf('player');
     } else {
         $uiconf = $uiconf_id;
     }
@@ -961,7 +1120,7 @@ function get_kdp_code($entry_obj, $uiconf_id = 0, $courseid = 0, $session = '') 
         "<object id=\"kaltura_player_{$uid}\" name=\"kaltura_player_{$uid}\"
         type=\"application/x-shockwave-flash\" allowFullScreen=\"true\" allowNetworking=\"all\"
         allowScriptAccess=\"always\" height=\"{$entry_obj->height}\" width=\"{$entry_obj->width}\"
-        xmlns:dc=\"http://purl.org/dc/terms/\" mlns:media=\"http://search.yahoo.com/searchmonkey/media/\"
+        xmlns:dc=\"http://purl.org/dc/terms/\" xmlns:media=\"http://search.yahoo.com/searchmonkey/media/\"
         rel=\"media:{$entry_obj->mediaType}\" resource=\"{$host}/index.php/kwidget/wid/_{$entry_obj->partnerId}/uiconf_id/{$uiconf}/entry_id/{$entry_obj->id}\"
         data=\"{$host}/index.php/kwidget/wid/_{$entry_obj->partnerId}/uiconf_id/{$uiconf}/entry_id/{$entry_obj->id}\">
 
@@ -995,23 +1154,25 @@ function get_kdp_code($entry_obj, $uiconf_id = 0, $courseid = 0, $session = '') 
  * @return string - query string of flash variables
  *
  */
-function get_kdp_flashvars($courseid = 0, $session = '') {
+function local_kaltura_get_kdp_flashvars($courseid = 0, $session = '') {
     global $USER;
 
-    
-    $flash_vars = "userId={$USER->username}";
-
+    if (isloggedin()) {
+        $flash_vars = "userId={$USER->username}";
+    } else {
+        $flash_vars = '';
+    }
     if (!empty($session)) {
-       $flash_vars .= '&ks='.$session;
+       $flash_vars .= '&amp;ks='.$session;
     }
 
     $application_name = get_config(KALTURA_PLUGIN_NAME, 'mymedia_application_name');
-    
+
     $application_name = empty($application_name) ? 'Moodle' : $application_name;
-    
-    $flash_vars .= '&applicationName='.$application_name;
-    
-    $enabled = kaltura_repository_enabled();
+
+    $flash_vars .= '&amp;applicationName='.$application_name;
+
+    $enabled = local_kaltura_kaltura_repository_enabled();
 
     if (!$enabled && 0 != $courseid) {
         return $flash_vars;
@@ -1021,38 +1182,52 @@ function get_kdp_flashvars($courseid = 0, $session = '') {
     require_once(dirname(dirname(dirname(__FILE__))) . '/repository/kaltura/locallib.php');
 
     $kaltura = new kaltura_connection();
-    $connection = $kaltura->get_connection(true, 86400);
+    $connection = $kaltura->get_connection(true, KALTURA_SESSION_LENGTH);
 
-    $category = create_course_category($connection, $courseid);
+    if (!$connection) {
+        return '';
+    }
+
+    $category = repository_kaltura_create_course_category($connection, $courseid);
 
     if ($category) {
-        $flash_vars .= '&playbackContext=' . $category->id;
+        $flash_vars .= '&amp;playbackContext=' . $category->id;
     }
 
     return $flash_vars;
 }
 
 /**
- * This function checks to see if the Kaltura repository plugin is enabled
+ * This function checks to see if the Kaltura repository plugin is enabled.
+ * Because there is not easy wasy of verifying in the database and it would
+ * require instanciating multiple classes, we're only going to check if the
+ * required values are set in the database.
  *
  * @param none
  * @return bool - true if it exists and is enabled, otherwise false
  */
-function kaltura_repository_enabled() {
+function local_kaltura_kaltura_repository_enabled() {
     global $CFG;
-
-    require_once($CFG->dirroot . '/repository/lib.php');
-    $instances = repository::get_types();
 
     $enabled = false;
 
-    foreach ($instances as $instance) {
-        $name = $instance->get_typename();
+    if (file_exists($CFG->dirroot . '/repository/kaltura/lib.php')) {
+        require_once($CFG->dirroot . '/repository/kaltura/lib.php');
 
-        if (0 == strcmp('kaltura', $name)) {
-            $enabled = true;
-            break;
+        if (!function_exists('repository_kaltura_create_course_category') ||
+            !function_exists('repository_kaltura_add_video_course_reference')) {
+            return $enabled;
         }
+
+        $root_id   = get_config(REPOSITORY_KALTURA_PLUGIN_NAME, 'rootcategory_id');
+        $root_path = get_config(REPOSITORY_KALTURA_PLUGIN_NAME, 'rootcategory');
+
+
+        if (empty($root_id) || empty($root_path)) {
+            return $enabled;
+        }
+
+        $enabled = true;
     }
 
     return $enabled;
@@ -1065,7 +1240,7 @@ function kaltura_repository_enabled() {
  * @param object - entry object
  * @return bool - true if valid, else false
  */
-function is_valid_entry_object($entry_obj) {
+function local_kaltura_is_valid_entry_object($entry_obj) {
     if (isset($entry_obj->mediaType)) {
         return true;
     } else {
@@ -1082,22 +1257,20 @@ function is_valid_entry_object($entry_obj) {
  *
  * @return string - Javascript used by the KCW
  */
-function get_kdp_presentation_player($entry_obj, $admin = false) {
+function local_kaltura_get_kdp_presentation_player($entry_obj, $admin = false) {
 
-    // TODO: Check for a capability or set context to a specific entry_id
-    //$context = empty($entry_id) ? '*' : $entry_id;
-    $client_obj = login(true);
+    $client_obj = local_kaltura_login(true);
 
     if (empty($client_obj)) {
         return '';
     }
 
-    $vars   = get_swfdoc_flashvars($client_obj, $entry_obj->id, $admin);
+    $vars   = local_kaltura_get_swfdoc_flashvars($client_obj, $entry_obj->id, $admin);
 
-    $uiconf = get_player_uiconf('presentation');
-    $url    = get_kdp_presentation_url($client_obj, $uiconf);
+    $uiconf = local_kaltura_get_player_uiconf('presentation');
+    $url    = local_kaltura_get_kdp_presentation_url($client_obj, $uiconf);
 
-    return get_kdp_presentation_code('', $url, $vars);
+    return local_kaltura_get_kdp_presentation_code('', $url, $vars);
 }
 
 /**
@@ -1117,10 +1290,10 @@ function get_kdp_presentation_player($entry_obj, $admin = false) {
  * TODO: Change the name of this function (and all references) since it on
  * longer only returns an entry object when the status is set to 'ready'
  */
-function get_ready_entry_object($entry_id, $ready_only = true) {
+function local_kaltura_get_ready_entry_object($entry_id, $ready_only = true) {
 
     try {
-        $client_obj = login(true, '');
+        $client_obj = local_kaltura_login(true, '');
 
         if (empty($client_obj)) {
             return false;
@@ -1156,7 +1329,7 @@ function get_ready_entry_object($entry_id, $ready_only = true) {
 
     } catch (Exception $ex) {
         // Connection failed for some reason.  Maybe proxy settings?
-        add_to_log(1, 'local_kaltura', ' | check conversion', '', $ex->getMessage());
+        add_to_log(SITEID, 'local_kaltura', ' | check conversion', '', $ex->getMessage());
         return false;
     }
 }
@@ -1166,10 +1339,11 @@ function get_ready_entry_object($entry_id, $ready_only = true) {
  *
  * @param array - array of parameters (currently it is not used)
  */
-function get_ksu_code($params = array()) {
+function local_kaltura_get_ksu_code($params = array()) {
 
-    $flashvars      = get_uploader_flashvars(true);
-    $uploader_url   = get_host() . '/kupload/ui_conf_id/' . get_uploader_uiconfid(); //1002613
+    $flashvars      = local_kaltura_get_uploader_flashvars(true);
+    $ksu_id         = local_kaltura_get_player_uiconf('simple_uploader');
+    $uploader_url   = local_kaltura_get_host() . '/kupload/ui_conf_id/' . $ksu_id; //1002613
     $flashmin       = get_string('flashminimum', 'local_kaltura');
     $javascript =
         "\n<script type=\"text/javascript\">\n".
@@ -1193,10 +1367,10 @@ function get_ksu_code($params = array()) {
     return $javascript;
 }
 
-function convert_ppt($entryId) {
+function local_kaltura_convert_ppt($entryId) {
     try {
 
-        $client_obj = login(true, '');
+        $client_obj = local_kaltura_login(true, '');
 
         $document_client = KalturaDocumentClientPlugin::get($client_obj);
 
@@ -1216,9 +1390,9 @@ function convert_ppt($entryId) {
     }
 }
 
-function check_document_status($document_id) {
+function local_kaltura_check_document_status($document_id) {
 
-    $client_obj = login(true, '');
+    $client_obj = local_kaltura_login(true, '');
 
     $documentAssets = $client_obj->flavorAsset->getByEntryId($document_id);
 
@@ -1244,7 +1418,7 @@ function check_document_status($document_id) {
     return 'n: not ready yet';
 }
 
-function create_swfdoc($document_entry_id, $video_entry_id) {
+function local_kaltura_create_swfdoc($document_entry_id, $video_entry_id) {
 
 ////Debug
 //$myFile = "/tmp/kcreate.txt";
@@ -1252,12 +1426,12 @@ function create_swfdoc($document_entry_id, $video_entry_id) {
 //fwrite($fh, " -- create_swfdoc 1st -- ");
 //fwrite($fh, ' ---- ');
 //fclose($fh);
-    $client_obj = login(true, '');
+    $client_obj = local_kaltura_login(true, '');
 
-    $url = get_host() .
+    $url = local_kaltura_get_host() .
            '/index.php/extwidget/raw/entry_id/' .
-           $document_entry_id . '/p/' . get_partner_id() .
-           '/sp/' . get_partner_id() * 100 .
+           $document_entry_id . '/p/' . local_kaltura_get_partner_id() .
+           '/sp/' . local_kaltura_get_partner_id() * 100 .
            '/type/download/format/swf/direct_serve/1';
 
     if (strpos($url, 'www.kaltura.com')) {
@@ -1285,12 +1459,12 @@ function create_swfdoc($document_entry_id, $video_entry_id) {
 }
 
 
-function get_swfdoc_code($entry_id) {
+function local_kaltura_get_swfdoc_code($entry_id) {
 
-    $flashvars      = get_swfdoc_flashvars($entry_id, true);
-    $uiconf         = get_player_uiconf('presentation');
-    $swf_url        = get_host() . '/kwidget/wid/_' .
-                      get_partner_id() . '/uiconf_id/' . $uiconf ;
+    $flashvars      = local_kaltura_get_swfdoc_flashvars($entry_id, true);
+    $uiconf         = local_kaltura_get_player_uiconf('presentation');
+    $swf_url        = local_kaltura_get_host() . '/kwidget/wid/_' .
+                      local_kaltura_get_partner_id() . '/uiconf_id/' . $uiconf ;
     $flashmin       = get_string('flashminimum', 'local_kaltura');
 
     $javascript =
@@ -1316,7 +1490,7 @@ function get_swfdoc_code($entry_id) {
  *
  * @return bool - true if enabled, otherwise false
  */
-function has_mobile_flavor_enabled() {
+function local_kaltura_has_mobile_flavor_enabled() {
 
     $filter = new KalturaPermissionFilter();
     $filter->nameEqual = 'FEATURE_MOBILE_FLAVORS';
@@ -1326,7 +1500,7 @@ function has_mobile_flavor_enabled() {
     $pager->pageIndex = 1;
 
     try {
-        $client_obj = login(true);
+        $client_obj = local_kaltura_login(true);
 
         if (empty($client_obj)) {
             throw new Exception("Unable to connect");
@@ -1344,12 +1518,12 @@ function has_mobile_flavor_enabled() {
         return true;
 
     } catch (Exception $ex) {
-        add_to_log(1, 'local_kaltura', ' | mobile flavor on', '', $ex->getMessage());
+        add_to_log(SITEID, 'local_kaltura', ' | mobile flavor on', '', $ex->getMessage());
         return false;
     }
 }
 
-function test_connection($client_obj) {
+function local_kaltura_test_connection($client_obj) {
     $results = false;
 
     $filter = new KalturaPermissionFilter();
@@ -1366,7 +1540,7 @@ function test_connection($client_obj) {
         return $results;
 
     } catch (Exception $ex) {
-        add_to_log(1, 'local_kaltura', ' | test connection', '', $ex->getMessage());
+        add_to_log(SITEID, 'local_kaltura', ' | test connection', '', $ex->getMessage());
         return false;
     }
 }
@@ -1377,10 +1551,10 @@ function test_connection($client_obj) {
  *
  * @return string - url to the Kaltura HTML5 library URL
  */
-function htm5_javascript_url($uiconf_id) {
+function local_kaltura_htm5_javascript_url($uiconf_id) {
 
-    $host = get_host();
-    $partner_id = get_partner_id();
+    $host       = local_kaltura_get_host();
+    $partner_id = local_kaltura_get_partner_id();
 
     return "{$host}/p/{$partner_id}/sp/{$partner_id}00/embedIframeJs/uiconf_id/{$uiconf_id}/partner_id/{$partner_id}";
 
@@ -1393,31 +1567,24 @@ function htm5_javascript_url($uiconf_id) {
  *
  * @return string - 1 if enabled, else 0
  */
-function get_enable_html5() {
+function local_kaltura_get_enable_html5() {
     return get_config(KALTURA_PLUGIN_NAME, 'enable_html5');
 }
 
 /**
- * Returns the uiconf id of the file uploader widget
- */
-function get_uploader_uiconfid() {
-  return KALTURA_FILE_UPLAODER;
-}
-
-/**
  * This function saves standard video metadata
- * 
+ *
  * @param obj - Kaltura connection object
  * @param int - Kaltura video id
  * @param array - array of properties to update (accepted keys/value
  * pairs 'name', 'tags', 'desc', 'catids')
- * 
+ *
  * @return bool - true of successful or false
  */
-function update_video_metadata($connection, $entry_id, $param) {
-    
+function local_kaltura_update_video_metadata($connection, $entry_id, $param) {
+
     $media_entry = new KalturaMediaEntry();
-    
+
     if (array_key_exists('name', $param)) {
         $media_entry->name = $param['name'];
     }
@@ -1435,13 +1602,13 @@ function update_video_metadata($connection, $entry_id, $param) {
     }
 
     $result = $connection->media->update($entry_id, $media_entry);
-    
+
     if (!$result instanceof KalturaMediaEntry) {
         return false;
     }
-    
+
     return true;
-    
+
 }
 
 /**
@@ -1459,9 +1626,9 @@ function update_video_metadata($connection, $entry_id, $param) {
  * kaltura server again
  *
  */
-function video_type_valid($entry_obj) {
+function local_kaltura_video_type_valid($entry_obj) {
     try {
-        $client_obj = login(true, '');
+        $client_obj = local_kaltura_login(true, '');
 
         if (empty($client_obj)) {
             throw new Exception('Invalid client object');
@@ -1487,7 +1654,7 @@ function video_type_valid($entry_obj) {
         }
     } catch (Exception $ex) {
         // Connection failed for some reason.  Maybe proxy settings?
-        add_to_log(1, 'local_kaltura', ' | convert to valid entry type', '', $ex->getMessage());
+        add_to_log(SITEID, 'local_kaltura', ' | convert to valid entry type', '', $ex->getMessage());
         return false;
     }
 
@@ -1495,15 +1662,154 @@ function video_type_valid($entry_obj) {
 
 /**
  * This function deletes a video from the Kaltura server
- * 
+ *
  * @param obj - Kaltura connection object
  * @param string - Kaltura video entry id
- * 
+ *
  * @param bool - true of success, false
  */
-function delete_video($connection, $entry_id) {
-    
+function local_kaltura_delete_video($connection, $entry_id) {
+
     return $connection->media->delete($entry_id);
+}
+
+/**
+ * This function determins whether Moodle is at 2.2 or newer.
+ *
+ * @param - none
+ * @return bool - true if this version of Moodle is newer than Moodel 2.3rc1
+ * otherwise false
+ */
+function local_kaltura_is_moodle_pre_twothree() {
+    // Retrieve the release number from the config table
+    $release = get_config('', 'release');
+
+    // If version is empty for some reason, return false and hope it works out okay
+    if (empty($release)) {
+        return false;
+    }
+
+    // Parse the release number
+    $release_num = substr($release, 0, 3);
+
+    // If this version of Moodle is lerger then Moodle 2.3rc1
+    if (0 == strcmp($release_num, '2.2')) {
+        return true;
+    } else if (0 == strcmp($release_num, '2.1')) {
+        return true;
+    } else if (0 == strcmp($release_num, '2.0')) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * This function creates a client tag used to identify API requests to the
+ * Kaltura server
+ *
+ * @return string - client tag
+ */
+function local_kaltura_create_client_tag() {
+
+    $client_tag      = 'moodle';
+    $release         = get_config('', 'release');
+    $release_array   = explode(' ', $release);
+    $kaltura_version = get_config(KALTURA_PLUGIN_NAME, 'version');
+
+    if (!empty($release_array) && is_array($release_array)) {
+        $client_tag .= '_' . $release_array[0];
+    }
+
+    $client_tag .= "_k_{$kaltura_version}";
+
+    return $client_tag;
+
+}
+
+/**
+ * This function returns HTML markup and javascript required to use kwidget to
+ * embed the HTML5 video markup. As of KALDEV-201, this function is used
+ * exclusively by the filter plug-in because of the issues faced by Moodle's
+ * caching filtered text and the XHR loading of course section by the MyMobile
+ * theme.
+ *
+ * @param obj - Kaltura video object
+ * @param int - player ui_conf_id (optional).  If no value is specified the
+ * default player will be used.
+ * @param int - Moodle course id (optional).  This parameter is required in
+ * order to generate Kaltura analytics data.
+ * @param string - A kaltura session string
+ * @param int - a unique identifier, this value is appented to 'kaltura_player_'
+ * and is used as the id of the object tag
+ *
+ */
+function local_kaltura_get_kwidget_code($entry_obj, $uiconf_id = 0, $courseid = 0, $session = '', $uid = 0) {
+
+    if (!local_kaltura_is_valid_entry_object($entry_obj)) {
+        return 'Unable to play video ('. $entry_obj->id . ') please contact your site administrator.';
+    }
+
+    if (0 == $uid) {
+        $uid  = floor(microtime(true));
+        $uid .= '_' . mt_rand();
+    }
+
+    $host               = local_kaltura_get_host();
+    $flash_vars         = local_kaltura_get_kdp_flashvars($courseid, $session);
+    $flash_vars         = explode('&amp;', $flash_vars);
+    $kwidget_flashvar   = '';
+
+    // Re-format the flashvars into javascript object properties
+    foreach ($flash_vars as $var) {
+        $pro_val = explode('=', $var);
+        $kwidget_flashvar .= ",'". $pro_val[0] ."' : '". $pro_val[1] . "'";
+    }
+
+
+    if (empty($uiconf_id)) {
+        $uiconf = local_kaltura_get_player_uiconf('player');
+    } else {
+        $uiconf = $uiconf_id;
+    }
+
+    $markup = "<div id=\"kaltura_player_{$uid}\" style=\"width:{$entry_obj->width}px;height:{$entry_obj->height}px;\">
+
+        <span property=\"dc:description\" content=\"{$entry_obj->description}\"></span>
+        <span property=\"media:title\" content=\"{$entry_obj->name}\"></span>
+        <span property=\"media:width\" content=\"{$entry_obj->width}\"></span>
+        <span property=\"media:height\" content=\"{$entry_obj->height}\"></span>
+
+        </div>
+        <script language=javascript>
+
+            if (document.readyState === \"complete\") {
+                local_kaltura_kwidget_{$entry_obj->id}();
+            } else {
+                window.addEventListener(\"onload\", function() { local_kaltura_kwidget_{$entry_obj->id}(); }, false);
+                document.addEventListener(\"DOMContentLoaded\", function () { local_kaltura_kwidget_{$entry_obj->id}(); }, false);
+            }
+
+
+            function local_kaltura_kwidget_{$entry_obj->id}() {
+                console.log('calling kwidget.embed for - kaltura_player_{$uid}');
+
+                kWidget.embed({
+                    'targetId': 'kaltura_player_{$uid}',
+                    'wid': '_{$entry_obj->partnerId}',
+                    'uiconf_id' : '{$uiconf_id}',
+                    'entry_id'  : '{$entry_obj->id}',
+                    'width'     : '{$entry_obj->width}',
+                    'height'    : '{$entry_obj->height}',
+                    'flashvars' :{
+                        'externalInterfaceDisabled' : false,
+                        'autoPlay' : false{$kwidget_flashvar}
+                    }
+                  });
+            }
+         </script>";
+
+         return $markup;
 }
 
 /**
@@ -1515,7 +1821,7 @@ class kaltura_connection {
     private static $timeout     = 0;
     private static $timestarted = 0;
 
-    public function __construct($timeout = 86400) {
+    public function __construct($timeout = KALTURA_SESSION_LENGTH) {
 
         global $SESSION;
 
@@ -1530,11 +1836,11 @@ class kaltura_connection {
         if (empty(self::$connection)) {
 
             // Login if connection object is empty
-            self::$connection = login(true, '', $timeout);
+            self::$connection = local_kaltura_login(true, '', $timeout);
 
             // Set session data
             if (!empty(self::$connection)) {
-                self::$timestarted  = time();
+                self::$timestarted    = time();
                 self::$timeout        = $timeout;
             }
         }
@@ -1627,7 +1933,7 @@ class kaltura_connection {
 
         self::$timeout = (0 == $timeout) ? self::$timeout : $timeout;
 
-        self::$connection = login(true, '', $timeout);
+        self::$connection = local_kaltura_login(true, '', $timeout);
 
         /** If connected, set the time the session started.
          * Otherwise set the start time to zero and the connection object to false
@@ -1653,5 +1959,5 @@ class kaltura_connection {
         $SESSION->kaltura_con_timestarted = self::$timestarted;
 
     }
-    
+
 }
