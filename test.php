@@ -18,7 +18,7 @@ echo $OUTPUT->header();
 
 require_capability('moodle/site:config', $context);
 
-$session = login(true, '', 2);
+$session = local_kaltura_login(true, '', 2);
 
 if ($session) {
     echo 'Connection successful';

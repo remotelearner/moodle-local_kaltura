@@ -290,6 +290,38 @@ M.local_kaltura.init_config = function (Y, test_script) {
         
         }); 
 
+        // Add a 'change' event to the Video Presentation KSU selection drop down
+        var pres_ksu = Y.one('#id_s_local_kaltura_simple_uploader');
+
+        // Check for the selected option
+        var pres_ksu_dom = Y.Node.getDOMNode(pres_ksu);
+        
+        var length = pres_ksu_dom.length - 1;
+
+        if (length == pres_ksu_dom.selectedIndex) {
+
+            Y.DOM.byId('id_s_local_kaltura_simple_uploader_custom').disabled = false;
+        } else {
+
+            Y.DOM.byId('id_s_local_kaltura_simple_uploader_custom').disabled = true;
+        }
+        
+        pres_ksu.on('change', function (e) {
+
+            var pres_custom_ksu = Y.DOM.byId("id_s_local_kaltura_simple_uploader_custom");
+
+            var pres_ksu_dom = Y.Node.getDOMNode(e.target);
+
+            var length = pres_ksu_dom.length - 1;
+
+            if (length == pres_ksu_dom.selectedIndex) {
+                pres_custom_ksu.disabled = false;
+            } else {
+                pres_custom_ksu.disabled = true;
+            }
+        
+        }); 
+
         // Add a 'change' event to the My Media KCW selection drop down
         var mymedia_uploader = Y.one('#id_s_local_kaltura_mymedia_uploader');
 
@@ -318,6 +350,38 @@ M.local_kaltura.init_config = function (Y, test_script) {
                 mymedia_custom_uploader.disabled = false;
             } else {
                 mymedia_custom_uploader.disabled = true;
+            }
+        
+        }); 
+
+        // Add a 'change' event to the My Media KSR selection drop down
+        var mymedia_ksr = Y.one('#id_s_local_kaltura_mymedia_screen_recorder');
+
+        // Check for the selected option
+        var mymedia_ksr_dom = Y.Node.getDOMNode(mymedia_ksr);
+        
+        var length = mymedia_ksr_dom.length - 1;
+
+        if (length == mymedia_ksr_dom.selectedIndex) {
+
+            Y.DOM.byId('id_s_local_kaltura_mymedia_screen_recorder_custom').disabled = false;
+        } else {
+
+            Y.DOM.byId('id_s_local_kaltura_mymedia_screen_recorder_custom').disabled = true;
+        }
+        
+        mymedia_ksr.on('change', function (e) {
+
+            var mymedia_custom_ksr = Y.DOM.byId("id_s_local_kaltura_mymedia_screen_recorder_custom");
+
+            var mymedia_ksr_dom = Y.Node.getDOMNode(e.target);
+
+            var length = mymedia_ksr_dom.length - 1;
+
+            if (length == mymedia_ksr_dom.selectedIndex) {
+                mymedia_custom_ksr.disabled = false;
+            } else {
+                mymedia_custom_ksr.disabled = true;
             }
         
         }); 
@@ -359,7 +423,9 @@ M.local_kaltura.init_config = function (Y, test_script) {
     
 };
 
-M.local_kaltura.video_assignment = function (Y, conversion_script, panel_markup, video_properties, kcw_code, script_location) {
+M.local_kaltura.video_assignment = function (Y, conversion_script, panel_markup,
+                                             video_properties, kcw_code, kaltura_session,
+                                             kaltura_partner_id, script_location) {
 
     // Adding makup to the body of the page for the kalvidassign
     if (null !== Y.one("#page-mod-kalvidassign-view")) { // Body tag for kalvidassign
@@ -405,13 +471,41 @@ M.local_kaltura.video_assignment = function (Y, conversion_script, panel_markup,
     widget_panel.render();
 
     // Panel show callback.  Add CSS styles to the main div container
-    // to rais it above the rest of the elments on the page
+    // to raise it above the rest of the elments on the page
     function widget_panel_callback(e, widget_panel) {
-        widget_panel.setBody(kcw_code);
-        widget_panel.show();
+        
+        // Check if the screen recording options was checked 
+        if (Y.one("#id_media_method_0").get('checked')) {
+            widget_panel.setBody(kcw_code);
+            widget_panel.show();
+        } else {
+        	
+            Y.one("#progress_bar_container").setStyle("visibility", "visible");
+            Y.one("#slider_border").setStyle("borderStyle", "none");
+
+            kalturaScreenRecord.setDetectTextJavaDisabled(M.util.get_string("javanotenabled", "kalvidassign"));
+            kalturaScreenRecord.setDetectTextmacLionNeedsInstall(M.util.get_string("javanotenabled", "kalvidassign"));
+            kalturaScreenRecord.setDetectTextjavaNotDetected(M.util.get_string("javanotenabled", "kalvidassign"));
+            kalturaScreenRecord.startKsr(kaltura_partner_id, kaltura_session, 'false');
+            
+            var java_disabled = function (message) {
+            	Y.one('#id_media_method_0').set("checked", true);
+            	Y.one('#id_media_method_1').set("disabled", true);
+            	
+                var progress_bar = document.getElementById('progress_bar_container');
+                if (null != progress_bar) {
+                    progress_bar.style.visibility = 'hidden';
+                }
+
+                alert(M.util.get_string("javanotenabled", "kalvidassign"));
+            }
+            
+            kalturaScreenRecord.setDetectResultErrorCustomCallback(java_disabled);
+
+        }
         
     }
-    
+
 
     kcw_panel.on("click", widget_panel_callback, null, widget_panel);
     
@@ -422,7 +516,6 @@ M.local_kaltura.video_assignment = function (Y, conversion_script, panel_markup,
     
     // Close wiget panel callback
     function kcw_cancel_callback(e) {
-
         var entry_id = Y.one("#entry_id");
         if (null !== entry_id) {
             
@@ -483,7 +576,6 @@ M.local_kaltura.video_assignment = function (Y, conversion_script, panel_markup,
         });
 
         function video_preview_callback(e) {
-            
             var entry_id = entry_element.get("value");
 
             if ("" == entry_id) {
@@ -578,7 +670,6 @@ M.local_kaltura.video_asignment_submission_view = function (Y, conversion_script
         return '';
     }
     
-
     // Create loading panel
     var loading_panel =  new YAHOO.widget.Panel("wait", { width:"240px",  
                                                           fixedcenter:true,  
@@ -616,9 +707,7 @@ M.local_kaltura.video_asignment_submission_view = function (Y, conversion_script
         preview_panel.setBody("");
     });
   
-    // Create the object video assignment object used by the video preview callback IO call
-    var vid_assign_context = {
-            complete: function check_conversion_status (id, o) {
+    function complete(id, o, args) {
 
                           if ('' == o.responseText) {
                               alert(M.util.get_string("video_converting", "kalvidassign"));
@@ -649,19 +738,11 @@ M.local_kaltura.video_asignment_submission_view = function (Y, conversion_script
                               }
 
                            }
-                      }
+
     };
 
-    // Setup a configuration object, give it the context of the vid_assign_context
-    // and set the "completed" event execute the vid_assign_context.complete function
-    var vid_assign_preview_cfg = {
-            on: {
-                complete: vid_assign_context.complete
-            },
-            context: vid_assign_context
-    };
-    
-    
+    Y.on('io:complete', complete, Y);
+
     // Get a NodeList of image elements
     var image_nodes = Y.all(".video_thumbnail_cl");
 
@@ -672,11 +753,12 @@ M.local_kaltura.video_asignment_submission_view = function (Y, conversion_script
         loading_panel.show();
 
         var hidden_id = "hidden_" + e.target.get('id');
+
         var entry_id = Y.one("#" + hidden_id).get("value");
 
         Y.io(conversion_script + entry_id  + "&" +
                 "uiconf_id=" + uiconf_id + "&" +
-                "height=400&width=365", vid_assign_preview_cfg);
+                "height=400&width=365"/*, vid_assign_preview_cfg*/);
 
     }
     
@@ -685,7 +767,9 @@ M.local_kaltura.video_asignment_submission_view = function (Y, conversion_script
 
 };
 
-M.local_kaltura.video_resource = function (Y, conversion_script, panel_markup, kcw_code, default_player_uiconf) {
+M.local_kaltura.video_resource = function (Y, conversion_script, 
+                                           panel_markup, kcw_code, default_player_uiconf,
+                                           kaltura_session, kaltura_partner_id, progress_bar_markup) {
 
     var kcw_panel               = null;
     var entry_element           = null;
@@ -757,6 +841,11 @@ M.local_kaltura.video_resource = function (Y, conversion_script, panel_markup, k
         return;
     }
 
+    // Add progress bar markup via javascript because of formslib
+    var progress_bar = Y.Node.create(progress_bar_markup).getDOMNode();
+    Y.one("#id_add_video").getDOMNode().parentNode.appendChild(progress_bar);
+    progress_bar.style.cssFloat = 'left';
+
     // Create panel to hold KCW
     var widget_panel = new YAHOO.widget.Panel("video_panel", { width: "800px",
                                                                height: "470px",
@@ -773,19 +862,47 @@ M.local_kaltura.video_resource = function (Y, conversion_script, panel_markup, k
 
     // Panel show callback
     function widget_panel_callback(e, widget_panel) {
-        // hide WYSIWYG iframe to avoid laying issues with some versions of Chrome
-        // See KALDEV-105 for details
-        // Cannot initialize iframe_editor at the beginning of the script because the 
-        // editor iframe seems to be the last element loaded on the page 
 
-        var iframe_editor       = Y.one("#id_introeditor_ifr");
+        // Check if the screen recording options was checked 
+        if (Y.one("#id_media_method_0").get('checked')) {
 
-        if (null !== iframe_editor) {
-            iframe_editor.setStyle("display", "none");
+            // hide WYSIWYG iframe to avoid laying issues with some versions of Chrome
+            // See KALDEV-105 for details
+            // Cannot initialize iframe_editor at the beginning of the script because the 
+            // editor iframe seems to be the last element loaded on the page 
+            var iframe_editor       = Y.one("#id_introeditor_ifr");
+    
+            if (null !== iframe_editor) {
+                iframe_editor.setStyle("display", "none");
+            }
+            
+            widget_panel.setBody(kcw_code);
+            widget_panel.show();
+
+        } else {
+
+            Y.one("#progress_bar_container").setStyle("visibility", "visible");
+            Y.one("#slider_border").setStyle("borderStyle", "none");
+            kalturaScreenRecord.startKsr(kaltura_partner_id, kaltura_session, "false");
+            kalturaScreenRecord.setDetectTextJavaDisabled(M.util.get_string("javanotenabled", "kalvidres"));
+            kalturaScreenRecord.setDetectTextmacLionNeedsInstall(M.util.get_string("javanotenabled", "kalvidres"));
+            kalturaScreenRecord.setDetectTextjavaNotDetected(M.util.get_string("javanotenabled", "kalvidres"));
+            
+            var java_disabled = function (message) {
+            	Y.one('#id_media_method_0').set("checked", true);
+            	Y.one('#id_media_method_1').set("disabled", true);
+
+            	var progress_bar = document.getElementById('progress_bar_container');
+            	if (null != progress_bar) {
+            	    progress_bar.style.visibility = 'hidden';
+            	}
+            	
+            	alert(M.util.get_string("javanotenabled", "kalvidres"));
+            }
+            
+            kalturaScreenRecord.setDetectResultErrorCustomCallback(java_disabled);
+
         }
-        
-        widget_panel.setBody(kcw_code);
-        widget_panel.show();
     }
 
     kcw_panel.on("click", widget_panel_callback, null, widget_panel);
@@ -1153,7 +1270,10 @@ M.local_kaltura.video_resource = function (Y, conversion_script, panel_markup, k
 
 };
 
-M.local_kaltura.video_presentation = function (Y, conversion_script, panel_markup, uploader_url, flashvars, kcw_code) {
+M.local_kaltura.video_presentation = function (Y, conversion_script, 
+                                               panel_markup, uploader_url, flashvars, 
+                                               kcw_code, kaltura_session, kaltura_partner_id,
+                                               progress_bar_markup) {
 
     // Adding makup to the body of the page for the kalvidpres
     if (null !== Y.one("#page-mod-kalvidpres-mod")) {
@@ -1196,6 +1316,11 @@ M.local_kaltura.video_presentation = function (Y, conversion_script, panel_marku
         return;
     }
 
+    // Add progress bar markup via javascript because of formslib
+    var progress_bar = Y.Node.create(progress_bar_markup).getDOMNode();
+    Y.one("#id_add_video").getDOMNode().parentNode.appendChild(progress_bar);
+    progress_bar.style.cssFloat = 'left';
+    
     // Create panel to hold KCW
     var widget_panel = new YAHOO.widget.Panel("video_panel", { width: "800px",
                                                                height: "470px",
@@ -1212,16 +1337,46 @@ M.local_kaltura.video_presentation = function (Y, conversion_script, panel_marku
 
     // Panel show callback
     function widget_panel_callback(e, widget_panel) {
-        // hide WYSIWYG iframe to avoid laying issues with some versions of Chrome
-        // See KALDEV-105 for details
-        var iframe_editor = Y.one("#id_introeditor_ifr");
 
-        if (null !== iframe_editor) {
-            iframe_editor.setStyle("display", "none");
+        // Check if the screen recording options was checked 
+        if (Y.one("#id_media_method_0").get('checked')) {
+            
+            // hide WYSIWYG iframe to avoid laying issues with some versions of Chrome
+            // See KALDEV-105 for details
+            var iframe_editor = Y.one("#id_introeditor_ifr");
+    
+            if (null !== iframe_editor) {
+                iframe_editor.setStyle("display", "none");
+            }
+    
+            widget_panel.setBody(kcw_code);
+            widget_panel.show();
+
+        } else {
+        	
+            Y.one("#progress_bar_container").setStyle("visibility", "visible");
+            Y.one("#slider_border").setStyle("borderStyle", "none");
+
+            kalturaScreenRecord.startKsr(kaltura_partner_id, kaltura_session, 'false');
+            kalturaScreenRecord.setDetectTextJavaDisabled(M.util.get_string("javanotenabled", "kalvidpres"));
+            kalturaScreenRecord.setDetectTextmacLionNeedsInstall(M.util.get_string("javanotenabled", "kalvidpres"));
+            kalturaScreenRecord.setDetectTextjavaNotDetected(M.util.get_string("javanotenabled", "kalvidpres"));
+            
+            var java_disabled = function (message) {
+            	Y.one('#id_media_method_0').set("checked", true);
+            	Y.one('#id_media_method_1').set("disabled", true);
+
+            	var progress_bar = document.getElementById('progress_bar_container');
+                if (null != progress_bar) {
+                    progress_bar.style.visibility = 'hidden';
+                }
+
+            	alert(M.util.get_string("javanotenabled", "kalvidpres"));
+            }
+            
+            kalturaScreenRecord.setDetectResultErrorCustomCallback(java_disabled);
+
         }
-
-        widget_panel.setBody(kcw_code);
-        widget_panel.show();
     }
     
     kcw_panel.on("click", widget_panel_callback, null, widget_panel);
@@ -1229,7 +1384,6 @@ M.local_kaltura.video_presentation = function (Y, conversion_script, panel_marku
     // Add a focus event handler to the notifications DIV
     // This is used to close the panel window when the user clicks
     // on the X in the KCW widget
-    //var kcw_cancel = Y.one("#notification");
     var kcw_cancel = Y.one("#notification");
     
     // Close wiget panel callback
@@ -1498,7 +1652,8 @@ M.local_kaltura.video_presentation = function (Y, conversion_script, panel_marku
 
 };
 
-M.local_kaltura.video_presentation_view = function (Y, conversion_script, panel_markup, video_properties, admin_mode) {
+M.local_kaltura.video_presentation_view = function (Y, conversion_script, 
+                                                    panel_markup, video_properties, admin_mode) {
 
     // Adding makup to the body of the page for the kalvidpres view
     if (null !== Y.one("#page-mod-kalvidpres-view")) {

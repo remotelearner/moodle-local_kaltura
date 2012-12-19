@@ -62,6 +62,7 @@ function migrate_assignment_data() {
     $dbman                  = $DB->get_manager();
     $assign_table_exists    = false;
     $module_exists          = false;
+    $rebuild_courses        = array();
 
     $table = new xmldb_table('assignment');
     if ($dbman->table_exists($table)) {
@@ -73,106 +74,111 @@ function migrate_assignment_data() {
     }
 
     if ($assign_table_exists && $module_exists) {
-
-        //Check of the kalvidassign module exists and retrieve all old assignments
-        $module_table_exists = kalvidassign_exists($dbman);
-
-        $params = array('assignmenttype' => 'kaltura');
-        $old_assignments = $DB->get_records('assignment', $params);
-
-        if (!empty($old_assignments)) {
-
-            foreach ($old_assignments as $assignment) {
-
-                $kalvidassign_obj = create_new_kalvidassign($assignment);
-                $kalvidassign_id  = add_new_kalvidassign($kalvidassign_obj);
-
-                if ($kalvidassign_id) {
-
-                    // Update calendar event
-                    update_calendar_event($kalvidassign_id, $assignment->id);
-
-                    // update course modules record for the video assignment by
-                    // setting it to point to the new kalvidassign instance
-                    $old_assignment_cm = get_coursemodule_from_instance('assignment', $assignment->id);
-
-                    if (empty($old_assignment_cm)) {
-                        continue;
-                    }
-
-                    $cm = new stdClass();
-                    $cm->id       = $old_assignment_cm->id;
-                    $cm->module   = $module->id;
-                    $cm->instance = $kalvidassign_id;
-
-                    // Replace the old assignment type reference with a reference to the new
-                    // assignment module
-                    if ($DB->update_record('course_modules', $cm)) {
-
-                        $param = array('itemtype' => 'mod',
-                                       'itemmodule' => 'assignment',
-                                       'iteminstance' => $assignment->id);
-                        $grade_item = $DB->get_record('grade_items', $param);
-
-                        // If this assignment has a grade item then update the references to point to the new
+        
+        try {
+            //Check of the kalvidassign module exists and retrieve all old assignments
+            $module_table_exists = kalvidassign_exists($dbman);
+    
+            $params = array('assignmenttype' => 'kaltura');
+            $old_assignments = $DB->get_records('assignment', $params);
+    
+            if (!empty($old_assignments)) {
+    
+                foreach ($old_assignments as $assignment) {
+    
+                    $courseid                   = $assignment->course;
+                    $rebuild_courses[$courseid] = $courseid;
+                    $kalvidassign_obj           = create_new_kalvidassign($assignment);
+                    $kalvidassign_id            = add_new_kalvidassign($kalvidassign_obj);
+    
+                    if ($kalvidassign_id) {
+    
+                        // Update calendar event
+                        update_calendar_event($kalvidassign_id, $assignment->id);
+    
+                        // update course modules record for the video assignment by
+                        // setting it to point to the new kalvidassign instance
+                        $old_assignment_cm = get_coursemodule_from_instance('assignment', $assignment->id);
+    
+                        if (empty($old_assignment_cm)) {
+                            continue;
+                        }
+    
+                        $cm           = new stdClass();
+                        $cm->id       = $old_assignment_cm->id;
+                        $cm->module   = $module->id;
+                        $cm->instance = $kalvidassign_id;
+    
+                        // Replace the old assignment type reference with a reference to the new
                         // assignment module
-                        if (!empty($grade_item)) {
+                        if ($DB->update_record('course_modules', $cm)) {
+    
+                            $param = array('itemtype'     => 'mod',
+                                           'itemmodule'   => 'assignment',
+                                           'iteminstance' => $assignment->id);
 
-                            // Now update the grade_items record
-                            $grade_item->itemmodule   = 'kalvidassign';
-                            $grade_item->iteminstance = $kalvidassign_id;
-
-                            if ($DB->update_record('grade_items', $grade_item)) {
-
-                                $param = array('itemid' => $grade_item->id);
-                                $grade_grades = $DB->get_records('grade_grades', $param, 'id,userid');
-
-                                if (!empty($grade_grades)) {
-
-                                    foreach ($grade_grades as $grade_grade) {
-
-                                        $param = array('assignment' => $assignment->id,
-                                                       'userid' => $grade_grade->userid);
-                                        $assign_sub = $DB->get_record('assignment_submissions', $param);
-
-                                        if (!empty($assign_sub)) {
-
-                                            // Create new user assignment submission
-                                            create_new_kalvidassign_submission($kalvidassign_id, $assign_sub);
-
-                                            // Remove old submission
-                                            $param = array('id' => $assign_sub->id);
-                                            $DB->delete_records('assignment_submissions',$param);
-
-                                        } // end of if submission exists
-
-                                    } // end of foreach loop grade_grades
-
-                                } // end of if empty grade_grades
-
-                            } // end of if update grade item failed
-
-                        } // end of if grade item exists
-
-                        // Delete old assignment record
-                        $param = array('id' => $assignment->id);
-                        $DB->delete_records('assignment', $param);
-
-                        // TODO: DON'T FORGET TO REMOVE OLD ASSIGNMENT REFERENCES FROM ASSIGNMENT AND ASSIGNMENT SUBMISSION
-
-                    } else { // Remove instance from module table
-
-                        $param = array('id' => $kalvidassign_id);
-                        $DB->delete_records('kalvidasign', $param);
-
+                            $grade_item = $DB->get_record('grade_items', $param);
+    
+                            // If this assignment has a grade item then update the references to point to the new
+                            // assignment module
+                            if (!empty($grade_item)) {
+    
+                                // Now update the grade_items record
+                                $grade_item->itemmodule   = 'kalvidassign';
+                                $grade_item->iteminstance = $kalvidassign_id;
+    
+                                if ($DB->update_record('grade_items', $grade_item)) {
+    
+                                    $param = array('itemid' => $grade_item->id);
+                                    $grade_grades = $DB->get_records('grade_grades', $param, 'id,userid');
+    
+                                    if (!empty($grade_grades)) {
+    
+                                        foreach ($grade_grades as $grade_grade) {
+    
+                                            $param = array('assignment' => $assignment->id,
+                                                           'userid' => $grade_grade->userid);
+                                            $assign_sub = $DB->get_record('assignment_submissions', $param);
+    
+                                            if (!empty($assign_sub) && !empty($assign_sub->data1)) {
+    
+                                                // Create new user assignment submission
+                                                create_new_kalvidassign_submission($kalvidassign_id, $assign_sub);
+    
+                                                // Remove old submission
+                                                $param = array('id' => $assign_sub->id);
+                                                $DB->delete_records('assignment_submissions',$param);
+    
+                                            } // end of if submission exists
+    
+                                        } // end of foreach loop grade_grades
+    
+                                    } // end of if empty grade_grades
+    
+                                } // end of if update grade item failed
+    
+                            } // end of if grade item exists
+    
+                            // Delete old assignment record
+                            $param = array('id' => $assignment->id);
+                            $DB->delete_records('assignment', $param);
+    
+                        }
+    
                     }
-
+    
                 }
-
             }
+        } catch (Exception $exp) {
+            add_to_log(SITEID, 'local_kaltura', 'Data migration error', '', $exp->getMessage());
         }
-
+    
     }
+    
+    foreach ($rebuild_courses as $courseid) {
+        rebuild_course_cache($courseid);
+    }
+
 }
 
 /**

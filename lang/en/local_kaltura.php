@@ -1,9 +1,11 @@
 <?php
+
+// Kaltura settings and generic messages
 $string['pluginname'] = 'Kaltura package libraries';
 $string['hostedconn'] = 'Kaltura Hosted Solution (SaaS)';
 $string['ceconn'] = 'Kaltura CE';
 $string['conn_heading_title'] = 'Kaltura hosted and CE settings';
-$string['conn_heading_desc'] = 'Input the the type of connection you would like to use (KalturaCE or the hosted Kaltura server) and enter in the'.
+$string['conn_heading_desc'] = 'Input the type of connection you would like to use (KalturaCE or the hosted Kaltura server) and enter in the'.
                                ' credentials related to the connection you are using.';
 $string['conn_server'] = 'Connection Server';
 $string['conn_server_desc'] = 'Select whether you are connecting to a hosted account on whether you are connect to your own Kaltura CE server';
@@ -87,3 +89,37 @@ $string['mymedia_items_per_page'] = 'Videos per page';
 $string['mymedia_items_per_page_desc'] = 'The number of videos to display on a single page';
 $string['application_name'] = 'Application name';
 $string['application_name_desc'] = 'The application name is the name reported back to the Kaltura server to be used for aggregation by application in the user level reports';
+$string['player_mymedia_screen_recorder'] = 'Default screen recorder widget (9780761)';
+$string['mymedia_screen_recorder'] = 'Screen Recoder UIConf ID';
+$string['mymedia_screen_recorder_desc'] = 'Screen recorder widget when recording a video from the My Media page';
+$string['custom_screen_recorder'] = 'Custom screen recorder widget';
+$string['kaltura_screen_recorder_custom'] = 'Custom KSR UIConf ID';
+$string['kaltura_screen_recorder_custom_desc'] = 'Only used if you have a custom KSR UIConf ID';
+$string['kaltura_reports'] = 'Kaltura reports';
+$string['kaltura_kalreports_heading'] = 'Kaltura Reports Settings';
+$string['report_server_uri'] = 'Reports server URI';
+$string['report_server_uri_desc'] = 'Type in the Kaltura reporting server URI you want to connect to';
+$string['kaltura_simple_uploader'] = 'Simple Uploader';
+$string['kaltura_simple_uploader_desc'] = 'Widget used to upload a document when adding a video presentation';
+$string['kaltura_simple_uploader'] = 'Simple Uploader';
+$string['kaltura_simple_uploader_desc'] = 'Widget used to upload a document when adding a video presentation';
+$string['kaltura_simple_uploader_cust_desc'] = 'Only used if you have a custom simple uploader widget';
+$string['kaltura_simple_uploader_cust'] = 'Custom Kaltura Simple Uploader UIConf ID';
+$string['simple_uploader'] = 'Simple Uploader (1002613)';
+$string['enable_reports'] = 'Enable reports';
+$string['enable_reports_desc'] = 'Kaltura reports are only compatible with Kaltura version Falcon or above';
+$string['enable_screen_recorder'] = 'Enable screen recorder';
+$string['enable_screen_recorder_desc'] = 'A global setting to enable the screen recorder across all Kaltura plug-ins (My Media, Video resource, Video presentation and Video assignment).  This option overrides any specific capability settings.';
+
+// Screen recorder
+$string['screenrecorder'] = 'Screen Recording';
+
+// Capabilities
+$string['kaltura:view_report'] = 'View Kaltura reports';
+
+// Kaltura reports
+$string['kaltura_report_navbar'] = 'Kaltura Course Media Reports';
+$string['header_kaltura_reports'] = 'Kaltura Reports';
+$string['no_capability'] = 'You don\'t have the capability to view this report';
+$string['report_disabled'] = 'Kaltura reporting has been disabled.  Please enable it in the Kaltura Package Libraries local plug-in';
+$string['kaltura_course_reports'] = 'Kaltura Course Media Reports';
