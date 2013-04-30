@@ -60,6 +60,82 @@ M.local_kaltura.get_thumbnail_url = function(entry_id) {
 
 };
 
+/*
+ * Perform course searching with auto-complete
+ */
+M.local_kaltura.search_course = function() {
+
+    YUI({filter: 'raw'}).use("autocomplete", function(Y) {
+        var search_txt = Y.one('#kaltura_search_txt');
+        var kaltura_search = document.getElementById("kaltura_search_txt");
+        var search_btn = Y.one('#kaltura_search_btn');
+        var clear_btn = Y.one('#kaltura_clear_btn');
+
+        search_txt.plug(Y.Plugin.AutoComplete, {
+            resultTextLocator: 'fullname',
+            enableCache: false,
+            minQueryLength: 2,
+            resultListLocator: 'data.courses',
+            resultFormatter: function (query, results) {
+                return Y.Array.map(results, function(result) {
+                    var course = result.raw;
+                    if (course.shortname) {
+                        return course.fullname + " (" + course.shortname + ")";
+                    }
+                    return course.fullname;
+                });
+            },
+            source: 'courses.php?query={query}&action=autocomplete',
+            on : {
+                select : function(e) {
+                    Y.io('courses.php', {
+                        method: 'POST',
+                        data: {course_id : e.result.raw.id, action: 'select_course'},
+                        on: {
+                            success: function(id, result) {
+                                var data = Y.JSON.parse(result.responseText);
+                                if (data.failure && data.failure == true) {
+                                    alert(data.message);
+                                } else {
+                                    document.getElementById('resourceobject').src = decodeURIComponent(data.url);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        kaltura_search.onkeypress = function(e) {
+            // Enter is pressed
+            if (e.keyCode === 13) {
+                var query = search_txt.get('value');
+                // Don't accept an empty search string
+                if (!(/^\s*$/.test(query))) {
+                    document.getElementById('resourceobject').src = 'courses.php?action=search&query='+query;
+                    // Lose focus of the auto-suggest menu
+                    kaltura_search.blur();
+                }
+            }
+        }
+
+        search_btn.on('click', function(e) {
+            var query = search_txt.get('value');
+            // Don't accept an empty search string
+            if (!(/^\s*$/.test(query))) {
+                document.getElementById('resourceobject').src = 'courses.php?action=search&query='+query;
+                kaltura_search.blur();
+            }
+        });
+
+        clear_btn.on('click', function(e) {
+            search_txt.set("value", "");
+        });
+
+    });
+
+};
+
 M.local_kaltura.init_config = function (Y, test_script) {
 
     // Check for an instance of the Kaltura connection type element

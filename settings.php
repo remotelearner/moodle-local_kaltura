@@ -174,6 +174,13 @@ if ($hassiteconfig) {
     $adminsetting->plugin = KALTURA_PLUGIN_NAME;
     $settings->add($adminsetting);
 
+    $adminsetting = new admin_setting_configtext('recent_courses_display_limit', get_string('recent_courses_display_limit', 'local_kaltura'), get_string('recent_courses_display_limit_desc', 'local_kaltura'), 30, PARAM_INT);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+    $adminsetting = new admin_setting_configtext('search_courses_display_limit', get_string('search_courses_display_limit', 'local_kaltura'), get_string('search_courses_display_limit_desc', 'local_kaltura'), 100, PARAM_INT);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
 
     // Kaltura regular player selection
     if ($enable_api_calls) {
