@@ -29,17 +29,21 @@ require_once(dirname(__FILE__) . '/locallib.php');
  * @return - nothing
  */
 function kaltura_extends_navigation($navigation) {
+    global $USER, $PAGE, $CFG, $SITE;
 
-    global $USER, $PAGE, $SITE;
-
-    // Finds courses where the user has this capabiltiy
-    $courses = get_user_capability_course('local/kaltura:view_report', null, true, 'shortname', 'shortname ASC');
-
-    if (!isloggedin()) {
+    if (!file_exists($CFG->dirroot.'/repository/kaltura/locallib.php')) {
         return '';
     }
 
-    if (empty($courses)) {
+    $isadmin = is_siteadmin($USER);
+
+    if (!$isadmin) {
+        if (kaltura_course_report_view_permission() === false) {
+            return '';
+        }
+    }
+
+    if (!isloggedin()) {
         return '';
     }
 
@@ -47,25 +51,7 @@ function kaltura_extends_navigation($navigation) {
     $report_text = get_string('kaltura_course_reports', 'local_kaltura');
 
     if ($node_home) {
-        $node_reports = $node_home->add($report_text, null, 70, $report_text, 'kal_reports');
-    }
-
-    $current_course = $PAGE->course->id;
-    $i   = 5;
-
-    foreach ($courses as $key => $course) {
-
-        if ($SITE->id == $course->id) {
-            $i++;
-            continue;
-        }
-
-        $course_name = format_string($course->shortname);
-        $node_reports->add($course_name, new moodle_url('/local/kaltura/reports.php',
-                                                        array('courseid' => $course->id)),
-                                                        navigation_node::NODETYPE_LEAF, $course_name, 'kal_reports_course' . $i);
-
-        $i++;
+        $node_home->add($report_text, new moodle_url('/local/kaltura/reports.php'), navigation_node::NODETYPE_LEAF, $report_text, 'kal_reports');
     }
 }
 

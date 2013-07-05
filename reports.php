@@ -15,63 +15,57 @@
 /**
  * Kaltura reports page
  *
- * @package    local
+ * @package    local_kaltura
  * @subpackage kaltura
+ * @copyright  2013 Remote-Learner http://www.remote-learner.net
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once(dirname(dirname(dirname(__FILE__))) . '/local/kaltura/locallib.php');
-require_once(dirname(dirname(dirname(__FILE__))) . '/repository/kaltura/locallib.php');
+require(dirname(dirname(dirname(__FILE__))).'/config.php');
+require($CFG->dirroot.'/local/kaltura/locallib.php');
+if (!file_exists($CFG->dirroot.'/repository/kaltura/locallib.php')) {
+    print_error(get_string('repo_not_installed', 'local_kaltura'));
+}
+require($CFG->dirroot.'/repository/kaltura/locallib.php');
 
-$courseid = required_param('courseid', PARAM_INT);
+require_login();
 
-require_login($courseid);
+$isadmin = is_siteadmin();
 
+if (!$isadmin) {
+    if (kaltura_course_report_view_permission() === false) {
+        print_error('nopermissions', '', '', '');
+    }
+}
 
-$context  = get_context_instance(CONTEXT_COURSE, $courseid);
-
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 
 $reports = get_string('header_kaltura_reports', 'local_kaltura');
 $header  = format_string($SITE->shortname).": $reports";
 
 $PAGE->set_url('/local/kaltura/reports.php');
-
 $PAGE->set_pagetype('kaltura-reports-index');
 $PAGE->set_pagelayout('standard');
-//$PAGE->set_pagelayout('frontpage');
 $PAGE->set_title($header);
 $PAGE->set_heading($header);
 $PAGE->add_body_class('kaltura-reports-index');
 
-// Create navbar
-$param       = array('id' => $courseid);
-$course_name = $DB->get_field('course', 'fullname', $param);
-
-//$PAGE->navbar->add(get_string('mycourses'));
-//$PAGE->navbar->add(format_string($course_name), new moodle_url('/course/view.php', array('id' => $courseid)));
-$PAGE->navbar->add(get_string('kaltura_report_navbar', 'local_kaltura'));
-
 echo $OUTPUT->header();
-
-require_capability('local/kaltura:view_report', $context, $USER);
 
 $enabled = get_config(KALTURA_PLUGIN_NAME, 'enable_reports');
 
-if (!empty($enabled)) {
+if (empty($enabled)) {
+    echo get_string('report_disabled', 'local_kaltura');
+} else  {
     $renderer = $PAGE->get_renderer('local_kaltura');
 
-    $wks = local_kaltura_generate_weak_kaltura_session($courseid, $course_name);
+    echo $renderer->render_course_search();
 
-
-    if (!empty($wks)) {
-        echo $renderer->create_report_iframe($wks);
-    } else {
+    if (($courses = $renderer->render_recent_courses()) === false) {
         echo get_string('conn_failed', 'local_kaltura');
+    } else {
+        echo $courses;
     }
-} else {
-    echo get_string('report_disabled', 'local_kaltura');
 }
 
 echo $OUTPUT->footer();

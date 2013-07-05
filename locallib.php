@@ -132,14 +132,15 @@ function local_kaltura_uninitialize_account() {
 /**
  * Send initializations information to the Kaltura server
  *
- * @param string - kaltura session string
- * @return nothing
+ * @param string $session The Kaltura session string
  */
 function local_kaltura_send_initialization($session) {
 
     global $CFG;
 
-    require_once(dirname(dirname(dirname(__FILE__))) . '/local/kaltura/version.php');
+    $plugin = new stdClass();
+    // We always want the version information even if it was already loaded by something else
+    include(dirname(__FILE__) . '/version.php');
 
     $ch = curl_init();
 
@@ -227,6 +228,12 @@ function local_kaltura_login($admin = false, $privileges = '', $expiry = 10800, 
 
 }
 
+/**
+ * Generate a weak Kaltura session
+ *
+ * @param int $courseid The id of the course
+ * @param string $course_name The name of the course
+ */
 function local_kaltura_generate_weak_kaltura_session($courseid, $course_name) {
     global $CFG, $USER, $DB;
 
@@ -263,8 +270,8 @@ function local_kaltura_generate_weak_kaltura_session($courseid, $course_name) {
     if (isloggedin()) {
         $username = $USER->username;
     }
-//TOOD: LOOK INTO THE CALLING OF A NON OBJECT
-//var_dump($kal_category);
+    // TODO: LOOK INTO THE CALLING OF A NON OBJECT
+    // var_dump($kal_category);
 
     $privilege = array(
         'app' => 'moodle',
@@ -1960,4 +1967,117 @@ class kaltura_connection {
 
     }
 
+}
+
+/**
+ * Search for Moodle courses with the given query
+ *
+ * @param string $query The course to search for
+ * @return mixed An array of Moodle courses on success; false, otherwise
+ */
+function search_course($query) {
+    global $CFG, $DB;
+
+    $courses = array();
+    $limit = get_config(KALTURA_PLUGIN_NAME, 'search_courses_display_limit');
+
+    if (empty($query)) {
+        return $courses;
+    }
+
+    $sql = "SELECT id, fullname, shortname, idnumber
+             FROM {$CFG->prefix}course
+            WHERE (".$DB->sql_like('fullname', '?', false)."
+               OR ".$DB->sql_like('shortname', '?', false).")
+              AND id != 1
+         ORDER BY fullname ASC";
+
+    if (($records = $DB->get_records_sql($sql, array('%'.$query.'%', '%'.$query.'%'), 0, $limit)) === false) {
+        return false;
+    }
+
+    foreach ($records as $crs) {
+        $context = context_course::instance($crs->id);
+        if (has_capability('local/kaltura:view_report', $context, null, true)) {
+            $course = new stdclass;
+            $course->id = $crs->id;
+            $course->fullname = $crs->fullname;
+            $course->idnumber = $crs->idnumber;
+            $course->shortname = $crs->shortname;
+            $courses[] = $course;
+        }
+    }
+
+    return $courses;
+}
+
+/**
+ * Returns a list of recently accessed Moodle courses
+ *
+ * @return mixed An array of courses on success; false, otherwise
+ */
+function recent_course_history_listing() {
+    global $USER, $DB;
+
+    $limit = get_config(KALTURA_PLUGIN_NAME, 'recent_courses_display_limit');
+    $courses = array();
+
+    // Get the most recently accessed courses by this user
+    // NOTE: JOIN on course table to only get courses which currently still exist
+    $sql = "SELECT ul.courseid AS course, ul.timeaccess
+              FROM {user_lastaccess} ul
+        INNER JOIN {course} c ON c.id = ul.courseid
+             WHERE ul.userid = :userid
+          ORDER BY ul.timeaccess DESC";
+
+    if (($records = $DB->get_records_sql($sql, array('userid' => $USER->id), 0, $limit)) === false) {
+        return false;
+    }
+
+    foreach ($records as $crs) {
+        if ($DB->record_exists('course', array('id' => $crs->course))) {
+            $context = context_course::instance($crs->course);
+            if (has_capability('local/kaltura:view_report', $context, null, true)) {
+                if ($course = $DB->get_record('course', array('id' => $crs->course), 'id, idnumber, fullname, shortname', IGNORE_MISSING)) {
+                    $courses[] = $course;
+                }
+            }
+        }
+    }
+
+    return $courses;
+}
+
+/**
+ * This function determines whether a user has any local/kaltura:view_report capabilities on a course context.
+ * This is a similar and more efficient implementation of the get_user_capability_course function.
+ * Currently this is used to determine if the "Kaltura Course Media Reports" link gets displayed to the user.
+ *
+ * @return boolean Returns true if user has permission; otherwise, false
+ */
+function kaltura_course_report_view_permission() {
+    global $DB, $USER;
+
+    $sql = "SELECT context.id
+              FROM {context} context
+              JOIN {role_assignments} role_assign ON context.id = role_assign.contextid
+              JOIN {role} role ON role_assign.roleid = role.id
+              JOIN {role_capabilities} role_cap ON role_cap.roleid = role.id
+             WHERE context.contextlevel = :context
+               AND role_cap.capability = :capability
+               AND role_assign.userid = :userid
+               AND role_cap.permission = :permission";
+
+    $params = array(
+        'context' => CONTEXT_COURSE,
+        'capability' => 'local/kaltura:view_report',
+        'userid' => $USER->id,
+        'permission' => CAP_ALLOW
+    );
+
+    if ($DB->record_exists_sql($sql, $params)) {
+        return true;
+    }
+
+    return false;
 }
