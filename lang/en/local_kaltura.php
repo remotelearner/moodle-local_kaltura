@@ -113,6 +113,7 @@ $string['enable_screen_recorder_desc'] = 'A global setting to enable the screen 
 
 // Screen recorder
 $string['screenrecorder'] = 'Screen Recording';
+$string['loadingwait'] = 'Loading. This may take a few minutes.';
 
 // Capabilities
 $string['kaltura:view_report'] = 'View Kaltura reports';

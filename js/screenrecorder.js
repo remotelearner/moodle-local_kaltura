@@ -32,12 +32,13 @@ kalturaScreenRecord.downloadCallBack = function(percent) {
     var progress_bar_container = document.getElementById('progress_bar_container');
     var progress_bar = document.getElementById('progress_bar');
     var slider_border = document.getElementById('slider_border');
-    
+    var loadingtext = document.getElementById('loading_text');
+
     if (100 != parseInt(percent)) {
 
+        loadingtext.innerHTML = kalturaScreenRecord.detectTexts.loadingwait;
         slider_border.style.border = "1px solid #000000";
         progress_bar_container.style.visibility = 'visible';
-        
         
         if ('1px solid #000000' != progress_bar.style.borderRight) {
             progress_bar.style.borderRight = '1px solid #000000';
@@ -98,16 +99,38 @@ kalturaScreenRecord.setDetectTextjavaNotDetected = function(txt) {
 kalturaScreenRecord.setDetectResultErrorCustomCallback = function(funcName) {this.detectResultError.customCallback = funcName;}
 
 /**
- *
+ * Callback function which gets triggered by screen recorder.
  */
 kalturaScreenRecord.startCallBack = function (result) {
+    var detection_in_progress = false;
+    var detection_process;
+
     console.log("Kaltura KSR startCallBack: called " + result + ".");
-    
-    if (!result) {
+
+    if (result.toLowerCase() != 'success') {
         console.log("Kaltura KSR startCallBack: failed to load widget.");
+        kalturaScreenRecord.displayDetectError();
+    } else {
+        var progress_bar_container = document.getElementById('progress_bar_container');
+        progress_bar_container.style.visibility = 'hidden';
     }
-    
-    var progress_bar_container = document.getElementById('progress_bar_container');
-    progress_bar_container.style.visibility = 'hidden';
-    
+    clearTimeout(detection_process);
+}
+
+/**
+ * Clear detection flag and display error.
+ */
+kalturaScreenRecord.clearDetectionFlagAndDisplayError = function() {
+    console.log('Clearing detection flag - either failed detection or widget started');
+    if (kalturaScreenRecord.startCallBack.detection_in_progress) {
+        kalturaScreenRecord.displayDetectError();
+        kalturaScreenRecord.startCallBack.detection_in_progress = false;
+    }
+}
+
+/**
+ * Display Java disabled error message.
+ */
+kalturaScreenRecord.displayDetectError = function() {
+    document.getElementById('loading_text').innerHTML = kalturaScreenRecord.detectTexts.javaDisabled;
 }
