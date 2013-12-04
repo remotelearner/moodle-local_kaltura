@@ -16,8 +16,7 @@
 /**
  * Kaltura video assignment grade preferences form
  *
- * @package    local
- * @subpackage kaltura
+ * @package    local_kaltura
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -46,10 +45,10 @@ $param = optional_param('section', '', PARAM_TEXT);
 $settings_page = !strcmp(KALTURA_PLUGIN_NAME, $param);
 
 // Check if the upgrade page is being displayed
-$upgrade_page = strpos($_SERVER['REQUEST_URI'], "/admin/upgradesettings.php");
+$upgrade_page = isset($_SERVER['REQUEST_URI']) ? strpos($_SERVER['REQUEST_URI'], "/admin/upgradesettings.php") : false;
 
 // Check if a global search was performed
-$global_search_page = strpos($_SERVER['REQUEST_URI'], "/admin/search.php");
+$global_search_page = isset($_SERVER['REQUEST_URI']) ? strpos($_SERVER['REQUEST_URI'], "/admin/search.php") : false;
 
 $enable_api_calls = $settings_page || $upgrade_page || $global_search_page;
 
