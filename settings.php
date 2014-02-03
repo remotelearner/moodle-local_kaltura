@@ -225,6 +225,15 @@ if ($hassiteconfig) {
     $adminsetting->plugin = KALTURA_PLUGIN_NAME;
     $settings->add($adminsetting);
 
+    $adminsetting = new admin_setting_configtext('kalvidassign_player_width', get_string('kalvidassign_player_width', 'local_kaltura'),
+            get_string('kalvidassign_player_width_desc', 'local_kaltura'), '400', PARAM_INT);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
+
+    $adminsetting = new admin_setting_configtext('kalvidassign_player_height', get_string('kalvidassign_player_height', 'local_kaltura'),
+            get_string('kalvidassign_player_height_desc', 'local_kaltura'), '365', PARAM_INT);
+    $adminsetting->plugin = KALTURA_PLUGIN_NAME;
+    $settings->add($adminsetting);
 
     // Kaltura resource regular player
     $settings->add(new admin_setting_heading('kaltura_kalvidres_heading',

@@ -40,6 +40,12 @@ define('KALTURA_PLAYER_KSU',                            1002613); // KSU
 
 define('KALTURA_FILTER_VIDEO_WIDTH', 400);
 define('KALTURA_FILTER_VIDEO_HEIGHT', 300);
+define('KALTURA_ASSIGN_VIDEO_WIDTH', 400);
+define('KALTURA_ASSIGN_VIDEO_HEIGHT', 365);
+
+// YUI panel popup border adjustments to make the embedded video look centered
+define('KALTURA_POPUP_WIDTH_ADJUSTMENT', 30);
+define('KALTURA_POPUP_HEIGHT_ADJUSTMENT', 50);
 
 define('KALTURA_SESSION_LENGTH', 10800); // 3 hours
 
