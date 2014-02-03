@@ -1,6 +1,25 @@
 <?php
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// Kaltura settings and generic messages
+/**
+ * Kaltura video assignment locallib
+ *
+ * @package    local_kaltura
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+
 $string['pluginname'] = 'Kaltura package libraries';
 $string['hostedconn'] = 'Kaltura Hosted Solution (SaaS)';
 $string['ceconn'] = 'Kaltura CE';
@@ -105,6 +124,10 @@ $string['kaltura_simple_uploader'] = 'Simple Uploader';
 $string['kaltura_simple_uploader_desc'] = 'Widget used to upload a document when adding a video presentation';
 $string['kaltura_simple_uploader_cust_desc'] = 'Only used if you have a custom simple uploader widget';
 $string['kaltura_simple_uploader_cust'] = 'Custom Kaltura Simple Uploader UIConf ID';
+$string['kalvidassign_player_height'] = 'Player height';
+$string['kalvidassign_player_height_desc'] = 'Adjust this setting if your Kaltura player is being cut off when submitting and/or viewing video submissions.';
+$string['kalvidassign_player_width'] = 'Player width';
+$string['kalvidassign_player_width_desc'] = 'Adjust this setting if your Kaltura player is being cut off when submitting and/or viewing video submissions.';
 $string['simple_uploader'] = 'Simple Uploader (1002613)';
 $string['enable_reports'] = 'Enable reports';
 $string['enable_reports_desc'] = 'Kaltura reports are only compatible with Kaltura version Falcon or above';
