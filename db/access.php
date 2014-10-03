@@ -15,19 +15,25 @@
 /**
  * Kaltura local plug-in access.php
  *
- * @package    local
- * @subpackage kaltura
+ * @package    local_kaltura
+ * @author     Remote-Learner.net Inc
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  (C) 2014 Remote Learner.net Inc http://www.remote-learner.net
  */
 
 $capabilities = array(
-
-    'local/kaltura:view_report' => array(
+    'local/kaltura:download_trace_logs' => array(
         'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
+        'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
             'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW
         )
-    )
+    ),
+    'local/kaltura:migrate_data' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    ),
 );

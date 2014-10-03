@@ -1,17 +1,45 @@
 <?php
+// ===================================================================================================
+//                           _  __     _ _
+//                          | |/ /__ _| | |_ _  _ _ _ __ _
+//                          | ' </ _` | |  _| || | '_/ _` |
+//                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
+//
+// This file is part of the Kaltura Collaborative Media Suite which allows users
+// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// text.
+//
+// Copyright (C) 2006-2011  Kaltura Inc.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// @ignore
+// ===================================================================================================
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 require_once(dirname(__FILE__) . "/../KalturaClientBase.php");
 require_once(dirname(__FILE__) . "/../KalturaEnums.php");
 require_once(dirname(__FILE__) . "/../KalturaTypes.php");
 require_once(dirname(__FILE__) . "/KalturaMetadataClientPlugin.php");
 
-class KalturaConfigurableDistributionProfileOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionAction
 {
 	const SUBMIT = 1;
@@ -20,14 +48,23 @@ class KalturaDistributionAction
 	const FETCH_REPORT = 4;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionErrorType
 {
 	const MISSING_FLAVOR = 1;
 	const MISSING_THUMBNAIL = 2;
 	const MISSING_METADATA = 3;
 	const INVALID_DATA = 4;
+	const MISSING_ASSET = 5;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionFieldRequiredStatus
 {
 	const NOT_REQUIRED = 0;
@@ -35,6 +72,10 @@ class KalturaDistributionFieldRequiredStatus
 	const REQUIRED_BY_PARTNER = 2;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionProfileActionStatus
 {
 	const DISABLED = 1;
@@ -42,14 +83,10 @@ class KalturaDistributionProfileActionStatus
 	const MANUAL = 3;
 }
 
-class KalturaDistributionProfileOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionProfileStatus
 {
 	const DISABLED = 1;
@@ -57,6 +94,10 @@ class KalturaDistributionProfileStatus
 	const DELETED = 3;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionProtocol
 {
 	const FTP = 1;
@@ -64,27 +105,13 @@ class KalturaDistributionProtocol
 	const SFTP = 3;
 	const HTTP = 4;
 	const HTTPS = 5;
+	const ASPERA = 10;
 }
 
-class KalturaDistributionProviderOrderBy
-{
-}
-
-class KalturaDistributionProviderType
-{
-	const GENERIC = "1";
-	const SYNDICATION = "2";
-	const YOUTUBE = "youTubeDistribution.YOUTUBE";
-	const YOUTUBE_API = "youtubeApiDistribution.YOUTUBE_API";
-	const DAILYMOTION = "dailymotionDistribution.DAILYMOTION";
-	const PODCAST = "podcastDistribution.PODCAST";
-	const TVCOM = "tvComDistribution.TVCOM";
-	const FREEWHEEL = "freewheelDistribution.FREEWHEEL";
-	const FREEWHEEL_GENERIC = "freewheelGenericDistribution.FREEWHEEL_GENERIC";
-	const HULU = "huluDistribution.HULU";
-	const DOUBLECLICK = "doubleClickDistribution.DOUBLECLICK";
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionValidationErrorType
 {
 	const CUSTOM_ERROR = 0;
@@ -94,6 +121,10 @@ class KalturaDistributionValidationErrorType
 	const INVALID_FORMAT = 4;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaEntryDistributionFlag
 {
 	const NONE = 0;
@@ -104,20 +135,10 @@ class KalturaEntryDistributionFlag
 	const DISABLE_REQUIRED = 5;
 }
 
-class KalturaEntryDistributionOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-	const SUBMITTED_AT_ASC = "+submittedAt";
-	const SUBMITTED_AT_DESC = "-submittedAt";
-	const SUNRISE_ASC = "+sunrise";
-	const SUNRISE_DESC = "-sunrise";
-	const SUNSET_ASC = "+sunset";
-	const SUNSET_DESC = "-sunset";
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaEntryDistributionStatus
 {
 	const PENDING = 0;
@@ -131,8 +152,14 @@ class KalturaEntryDistributionStatus
 	const ERROR_UPDATING = 8;
 	const ERROR_DELETING = 9;
 	const REMOVED = 10;
+	const IMPORT_SUBMITTING = 11;
+	const IMPORT_UPDATING = 12;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaEntryDistributionSunStatus
 {
 	const BEFORE_SUNRISE = 1;
@@ -140,30 +167,10 @@ class KalturaEntryDistributionSunStatus
 	const AFTER_SUNSET = 3;
 }
 
-class KalturaGenericDistributionProfileOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-}
-
-class KalturaGenericDistributionProviderActionOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-}
-
-class KalturaGenericDistributionProviderOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaGenericDistributionProviderParser
 {
 	const XSL = 1;
@@ -171,24 +178,273 @@ class KalturaGenericDistributionProviderParser
 	const REGEX = 3;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaGenericDistributionProviderStatus
 {
 	const ACTIVE = 2;
 	const DELETED = 3;
 }
 
-class KalturaSyndicationDistributionProfileOrderBy
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaConfigurableDistributionProfileOrderBy
 {
 	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
 	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
 	const UPDATED_AT_DESC = "-updatedAt";
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionProfileOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionProviderOrderBy
+{
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionProviderType
+{
+	const ATT_UVERSE = "attUverseDistribution.ATT_UVERSE";
+	const AVN = "avnDistribution.AVN";
+	const COMCAST_MRSS = "comcastMrssDistribution.COMCAST_MRSS";
+	const CROSS_KALTURA = "crossKalturaDistribution.CROSS_KALTURA";
+	const DAILYMOTION = "dailymotionDistribution.DAILYMOTION";
+	const DOUBLECLICK = "doubleClickDistribution.DOUBLECLICK";
+	const FREEWHEEL = "freewheelDistribution.FREEWHEEL";
+	const FREEWHEEL_GENERIC = "freewheelGenericDistribution.FREEWHEEL_GENERIC";
+	const FTP = "ftpDistribution.FTP";
+	const FTP_SCHEDULED = "ftpDistribution.FTP_SCHEDULED";
+	const HULU = "huluDistribution.HULU";
+	const IDETIC = "ideticDistribution.IDETIC";
+	const METRO_PCS = "metroPcsDistribution.METRO_PCS";
+	const MSN = "msnDistribution.MSN";
+	const NDN = "ndnDistribution.NDN";
+	const PODCAST = "podcastDistribution.PODCAST";
+	const QUICKPLAY = "quickPlayDistribution.QUICKPLAY";
+	const SYNACOR_HBO = "synacorHboDistribution.SYNACOR_HBO";
+	const TIME_WARNER = "timeWarnerDistribution.TIME_WARNER";
+	const TVCOM = "tvComDistribution.TVCOM";
+	const UVERSE_CLICK_TO_ORDER = "uverseClickToOrderDistribution.UVERSE_CLICK_TO_ORDER";
+	const UVERSE = "uverseDistribution.UVERSE";
+	const VERIZON_VCAST = "verizonVcastDistribution.VERIZON_VCAST";
+	const YAHOO = "yahooDistribution.YAHOO";
+	const YOUTUBE = "youTubeDistribution.YOUTUBE";
+	const YOUTUBE_API = "youtubeApiDistribution.YOUTUBE_API";
+	const GENERIC = "1";
+	const SYNDICATION = "2";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaEntryDistributionOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const SUBMITTED_AT_ASC = "+submittedAt";
+	const SUNRISE_ASC = "+sunrise";
+	const SUNSET_ASC = "+sunset";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const SUBMITTED_AT_DESC = "-submittedAt";
+	const SUNRISE_DESC = "-sunrise";
+	const SUNSET_DESC = "-sunset";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProfileOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderActionOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaSyndicationDistributionProfileOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaSyndicationDistributionProviderOrderBy
 {
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaAssetDistributionCondition extends KalturaObjectBase
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaAssetDistributionRule extends KalturaObjectBase
+{
+	/**
+	 * The validation error description that will be set on the "data" property on KalturaDistributionValidationErrorMissingAsset if rule was not fulfilled
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $validationError = null;
+
+	/**
+	 * An array of asset distribution conditions
+	 * 	 
+	 *
+	 * @var array of KalturaAssetDistributionCondition
+	 */
+	public $assetDistributionConditions;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionFieldConfig extends KalturaObjectBase
+{
+	/**
+	 * A value taken from a connector field enum which associates the current configuration to that connector field
+	 *      Field enum class should be returned by the provider's getFieldEnumClass function.
+	 *      
+	 *
+	 * @var string
+	 */
+	public $fieldName = null;
+
+	/**
+	 * A string that will be shown to the user as the field name in error messages related to the current field
+	 *      
+	 *
+	 * @var string
+	 */
+	public $userFriendlyFieldName = null;
+
+	/**
+	 * An XSLT string that extracts the right value from the Kaltura entry MRSS XML.
+	 *      The value of the current connector field will be the one that is returned from transforming the Kaltura entry MRSS XML using this XSLT string.
+	 *      
+	 *
+	 * @var string
+	 */
+	public $entryMrssXslt = null;
+
+	/**
+	 * Is the field required to have a value for submission ?
+	 *      
+	 *
+	 * @var KalturaDistributionFieldRequiredStatus
+	 */
+	public $isRequired = null;
+
+	/**
+	 * Trigger distribution update when this field changes or not ?
+	 *      
+	 *
+	 * @var bool
+	 */
+	public $updateOnChange = null;
+
+	/**
+	 * Entry column or metadata xpath that should trigger an update
+	 *      
+	 *
+	 * @var array of KalturaString
+	 */
+	public $updateParams;
+
+	/**
+	 * Is this field config is the default for the distribution provider?
+	 *      
+	 *
+	 * @var bool
+	 * @readonly
+	 */
+	public $isDefault = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaDistributionJobProviderData extends KalturaObjectBase
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionThumbDimensions extends KalturaObjectBase
 {
 	/**
@@ -208,11 +464,15 @@ class KalturaDistributionThumbDimensions extends KalturaObjectBase
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaDistributionProfile extends KalturaObjectBase
 {
 	/**
 	 * Auto generated unique id
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -221,7 +481,7 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Profile creation date as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -230,7 +490,7 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Profile last update date as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -297,6 +557,7 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Comma separated flavor params ids that should be auto converted
+	 * 	 
 	 *
 	 * @var string
 	 */
@@ -304,6 +565,7 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Comma separated thumbnail params ids that should be auto generated
+	 * 	 
 	 *
 	 * @var string
 	 */
@@ -311,13 +573,15 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Comma separated flavor params ids that should be submitted if ready
+	 * 	 
 	 *
 	 * @var string
 	 */
 	public $optionalFlavorParamsIds = null;
 
 	/**
-	 * Comma separated flavor params ids that required to be readt before submission
+	 * Comma separated flavor params ids that required to be ready before submission
+	 * 	 
 	 *
 	 * @var string
 	 */
@@ -325,6 +589,7 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Thumbnail dimensions that should be submitted if ready
+	 * 	 
 	 *
 	 * @var array of KalturaDistributionThumbDimensions
 	 */
@@ -332,13 +597,31 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * Thumbnail dimensions that required to be readt before submission
+	 * 	 
 	 *
 	 * @var array of KalturaDistributionThumbDimensions
 	 */
 	public $requiredThumbDimensions;
 
 	/**
+	 * Asset Distribution Rules for assets that should be submitted if ready
+	 * 	 
+	 *
+	 * @var array of KalturaAssetDistributionRule
+	 */
+	public $optionalAssetDistributionRules;
+
+	/**
+	 * Assets Asset Distribution Rules for assets that are required to be ready before submission
+	 * 	 
+	 *
+	 * @var array of KalturaAssetDistributionRule
+	 */
+	public $requiredAssetDistributionRules;
+
+	/**
 	 * If entry distribution sunrise not specified that will be the default since entry creation time, in seconds
+	 * 	 
 	 *
 	 * @var int
 	 */
@@ -346,80 +629,43 @@ abstract class KalturaDistributionProfile extends KalturaObjectBase
 
 	/**
 	 * If entry distribution sunset not specified that will be the default since entry creation time, in seconds
+	 * 	 
 	 *
 	 * @var int
 	 */
 	public $sunsetDefaultOffset = null;
 
-
-}
-
-abstract class KalturaDistributionProfileBaseFilter extends KalturaFilter
-{
 	/**
-	 * 
+	 * The best external storage to be used to download the asset files from
+	 * 	 
 	 *
 	 * @var int
 	 */
-	public $idEqual = null;
+	public $recommendedStorageProfileForDownload = null;
 
 	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $idIn = null;
-
-	/**
-	 * 
+	 * The best Kaltura data center to be used to download the asset files to
+	 * 	 
 	 *
 	 * @var int
 	 */
-	public $createdAtGreaterThanOrEqual = null;
+	public $recommendedDcForDownload = null;
 
 	/**
-	 * 
+	 * The best Kaltura data center to be used to execute the distribution job
+	 * 	 
 	 *
 	 * @var int
 	 */
-	public $createdAtLessThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $updatedAtGreaterThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $updatedAtLessThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaDistributionProfileStatus
-	 */
-	public $statusEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $statusIn = null;
+	public $recommendedDcForExecute = null;
 
 
 }
 
-class KalturaDistributionProfileFilter extends KalturaDistributionProfileBaseFilter
-{
-
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionProfileListResponse extends KalturaObjectBase
 {
 	/**
@@ -441,6 +687,138 @@ class KalturaDistributionProfileListResponse extends KalturaObjectBase
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaDistributionProvider extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProviderType
+	 * @readonly
+	 */
+	public $type = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $name = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $scheduleUpdateEnabled = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $availabilityUpdateEnabled = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $deleteInsteadUpdate = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $intervalBeforeSunrise = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $intervalBeforeSunset = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $updateRequiredEntryFields = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $updateRequiredMetadataXPaths = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionProviderListResponse extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var array of KalturaDistributionProvider
+	 * @readonly
+	 */
+	public $objects;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $totalCount = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionRemoteMediaFile extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $version = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $assetId = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $remoteId = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaDistributionValidationError extends KalturaObjectBase
 {
 	/**
@@ -467,11 +845,15 @@ abstract class KalturaDistributionValidationError extends KalturaObjectBase
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaEntryDistribution extends KalturaObjectBase
 {
 	/**
 	 * Auto generated unique id
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -480,7 +862,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * Entry distribution creation date as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -489,7 +871,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * Entry distribution last update date as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -498,7 +880,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * Entry distribution submission date as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -555,6 +937,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * Comma separated thumbnail asset ids
+	 * 	 
 	 *
 	 * @var string
 	 */
@@ -562,14 +945,23 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * Comma separated flavor asset ids
+	 * 	 
 	 *
 	 * @var string
 	 */
 	public $flavorAssetIds = null;
 
 	/**
+	 * Comma separated asset ids
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $assetIds = null;
+
+	/**
 	 * Entry distribution publish time as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 */
@@ -577,7 +969,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * Entry distribution un-publish time as Unix timestamp (In seconds)
-	 * 
+	 * 	 
 	 *
 	 * @var int
 	 */
@@ -585,6 +977,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * The id as returned from the distributed destination
+	 * 	 
 	 *
 	 * @var string
 	 * @readonly
@@ -593,6 +986,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * The plays as retrieved from the remote destination reports
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -601,6 +995,7 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 	/**
 	 * The views as retrieved from the remote destination reports
+	 * 	 
 	 *
 	 * @var int
 	 * @readonly
@@ -611,7 +1006,6 @@ class KalturaEntryDistribution extends KalturaObjectBase
 	 * 
 	 *
 	 * @var array of KalturaDistributionValidationError
-	 * @readonly
 	 */
 	public $validationErrors;
 
@@ -690,6 +1084,784 @@ class KalturaEntryDistribution extends KalturaObjectBase
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaEntryDistributionListResponse extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var array of KalturaEntryDistribution
+	 * @readonly
+	 */
+	public $objects;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $totalCount = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProfileAction extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProtocol
+	 */
+	public $protocol = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $serverUrl = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $serverPath = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $username = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $password = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $ftpPassiveMode = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $httpFieldName = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $httpFileName = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderAction extends KalturaObjectBase
+{
+	/**
+	 * Auto generated
+	 * 	 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $id = null;
+
+	/**
+	 * Generic distribution provider action creation date as Unix timestamp (In seconds)
+	 * 	 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $createdAt = null;
+
+	/**
+	 * Generic distribution provider action last update date as Unix timestamp (In seconds)
+	 * 	 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $updatedAt = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @insertonly
+	 */
+	public $genericDistributionProviderId = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionAction
+	 * @insertonly
+	 */
+	public $action = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProviderStatus
+	 * @readonly
+	 */
+	public $status = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProviderParser
+	 */
+	public $resultsParser = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProtocol
+	 */
+	public $protocol = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $serverAddress = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $remotePath = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $remoteUsername = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $remotePassword = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $editableFields = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $mandatoryFields = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 * @readonly
+	 */
+	public $mrssTransformer = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 * @readonly
+	 */
+	public $mrssValidator = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 * @readonly
+	 */
+	public $resultsTransformer = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderActionListResponse extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var array of KalturaGenericDistributionProviderAction
+	 * @readonly
+	 */
+	public $objects;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $totalCount = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProvider extends KalturaDistributionProvider
+{
+	/**
+	 * Auto generated
+	 * 	 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $id = null;
+
+	/**
+	 * Generic distribution provider creation date as Unix timestamp (In seconds)
+	 * 	 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $createdAt = null;
+
+	/**
+	 * Generic distribution provider last update date as Unix timestamp (In seconds)
+	 * 	 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $updatedAt = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $partnerId = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $isDefault = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProviderStatus
+	 * @readonly
+	 */
+	public $status = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $optionalFlavorParamsIds = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $requiredFlavorParamsIds = null;
+
+	/**
+	 * 
+	 *
+	 * @var array of KalturaDistributionThumbDimensions
+	 */
+	public $optionalThumbDimensions;
+
+	/**
+	 * 
+	 *
+	 * @var array of KalturaDistributionThumbDimensions
+	 */
+	public $requiredThumbDimensions;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $editableFields = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $mandatoryFields = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderListResponse extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var array of KalturaGenericDistributionProvider
+	 * @readonly
+	 */
+	public $objects;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $totalCount = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaAssetDistributionPropertyCondition extends KalturaAssetDistributionCondition
+{
+	/**
+	 * The property name to look for, this will match to a getter on the asset object.
+	 * 	 Should be camelCase naming convention (defining "myPropertyName" will look for getMyPropertyName())
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $propertyName = null;
+
+	/**
+	 * The value to compare
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $propertyValue = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaConfigurableDistributionJobProviderData extends KalturaDistributionJobProviderData
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $fieldValues = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaConfigurableDistributionProfile extends KalturaDistributionProfile
+{
+	/**
+	 * 
+	 *
+	 * @var array of KalturaDistributionFieldConfig
+	 */
+	public $fieldConfigArray;
+
+	/**
+	 * 
+	 *
+	 * @var array of KalturaExtendingItemMrssParameter
+	 */
+	public $itemXpathsToExtend;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaContentDistributionSearchItem extends KalturaSearchItem
+{
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $noDistributionProfiles = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $distributionProfileId = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaEntryDistributionSunStatus
+	 */
+	public $distributionSunStatus = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaEntryDistributionFlag
+	 */
+	public $entryDistributionFlag = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaEntryDistributionStatus
+	 */
+	public $entryDistributionStatus = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $hasEntryDistributionValidationErrors = null;
+
+	/**
+	 * Comma seperated validation error types
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $entryDistributionValidationErrors = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionJobData extends KalturaJobData
+{
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $distributionProfileId = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProfile
+	 */
+	public $distributionProfile;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $entryDistributionId = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaEntryDistribution
+	 */
+	public $entryDistribution;
+
+	/**
+	 * Id of the media in the remote system
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $remoteId = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProviderType
+	 */
+	public $providerType = null;
+
+	/**
+	 * Additional data that relevant for the provider only
+	 * 	 
+	 *
+	 * @var KalturaDistributionJobProviderData
+	 */
+	public $providerData;
+
+	/**
+	 * The results as returned from the remote destination
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $results = null;
+
+	/**
+	 * The data as sent to the remote destination
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $sentData = null;
+
+	/**
+	 * Stores array of media files that submitted to the destination site
+	 * 	 Could be used later for media update 
+	 * 	 
+	 *
+	 * @var array of KalturaDistributionRemoteMediaFile
+	 */
+	public $mediaFiles;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaDistributionProfileBaseFilter extends KalturaFilter
+{
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $idEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $idIn = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $createdAtGreaterThanOrEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $createdAtLessThanOrEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $updatedAtGreaterThanOrEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $updatedAtLessThanOrEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProfileStatus
+	 */
+	public $statusEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $statusIn = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaDistributionProviderBaseFilter extends KalturaFilter
+{
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionProviderType
+	 */
+	public $typeEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $typeIn = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionValidationErrorInvalidData extends KalturaDistributionValidationError
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $fieldName = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionValidationErrorType
+	 */
+	public $validationErrorType = null;
+
+	/**
+	 * Parameter of the validation error
+	 * 	 For example, minimum value for KalturaDistributionValidationErrorType::STRING_TOO_SHORT validation error
+	 * 	 
+	 *
+	 * @var string
+	 */
+	public $validationErrorParam = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionValidationErrorMissingAsset extends KalturaDistributionValidationError
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $data = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionValidationErrorMissingFlavor extends KalturaDistributionValidationError
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $flavorParamsId = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionValidationErrorMissingMetadata extends KalturaDistributionValidationError
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $fieldName = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionValidationErrorMissingThumbnail extends KalturaDistributionValidationError
+{
+	/**
+	 * 
+	 *
+	 * @var KalturaDistributionThumbDimensions
+	 */
+	public $dimensions;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaEntryDistributionBaseFilter extends KalturaFilter
 {
 	/**
@@ -835,107 +2007,77 @@ abstract class KalturaEntryDistributionBaseFilter extends KalturaFilter
 
 }
 
-class KalturaEntryDistributionFilter extends KalturaEntryDistributionBaseFilter
-{
-
-}
-
-class KalturaEntryDistributionListResponse extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var array of KalturaEntryDistribution
-	 * @readonly
-	 */
-	public $objects;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $totalCount = null;
-
-
-}
-
-abstract class KalturaDistributionProviderBaseFilter extends KalturaFilter
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionJobProviderData extends KalturaDistributionJobProviderData
 {
 	/**
 	 * 
 	 *
-	 * @var KalturaDistributionProviderType
+	 * @var string
 	 */
-	public $typeEqual = null;
+	public $xml = null;
 
 	/**
 	 * 
 	 *
 	 * @var string
 	 */
-	public $typeIn = null;
+	public $resultParseData = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProviderParser
+	 */
+	public $resultParserType = null;
 
 
 }
 
-class KalturaDistributionProviderFilter extends KalturaDistributionProviderBaseFilter
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProfile extends KalturaDistributionProfile
 {
-
-}
-
-abstract class KalturaDistributionProvider extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var KalturaDistributionProviderType
-	 * @readonly
-	 */
-	public $type = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $name = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $scheduleUpdateEnabled = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $availabilityUpdateEnabled = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $deleteInsteadUpdate = null;
-
 	/**
 	 * 
 	 *
 	 * @var int
+	 * @insertonly
 	 */
-	public $intervalBeforeSunrise = null;
+	public $genericProviderId = null;
 
 	/**
 	 * 
 	 *
-	 * @var int
+	 * @var KalturaGenericDistributionProfileAction
 	 */
-	public $intervalBeforeSunset = null;
+	public $submitAction;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProfileAction
+	 */
+	public $updateAction;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProfileAction
+	 */
+	public $deleteAction;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProfileAction
+	 */
+	public $fetchReportAction;
 
 	/**
 	 * 
@@ -954,375 +2096,10 @@ abstract class KalturaDistributionProvider extends KalturaObjectBase
 
 }
 
-class KalturaDistributionProviderListResponse extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var array of KalturaDistributionProvider
-	 * @readonly
-	 */
-	public $objects;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $totalCount = null;
-
-
-}
-
-class KalturaGenericDistributionProvider extends KalturaDistributionProvider
-{
-	/**
-	 * Auto generated
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $id = null;
-
-	/**
-	 * Generic distribution provider creation date as Unix timestamp (In seconds)
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $createdAt = null;
-
-	/**
-	 * Generic distribution provider last update date as Unix timestamp (In seconds)
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $updatedAt = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $partnerId = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $isDefault = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProviderStatus
-	 * @readonly
-	 */
-	public $status = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $optionalFlavorParamsIds = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $requiredFlavorParamsIds = null;
-
-	/**
-	 * 
-	 *
-	 * @var array of KalturaDistributionThumbDimensions
-	 */
-	public $optionalThumbDimensions;
-
-	/**
-	 * 
-	 *
-	 * @var array of KalturaDistributionThumbDimensions
-	 */
-	public $requiredThumbDimensions;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $editableFields = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $mandatoryFields = null;
-
-
-}
-
-abstract class KalturaGenericDistributionProviderBaseFilter extends KalturaDistributionProviderFilter
-{
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $idEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $idIn = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $createdAtGreaterThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $createdAtLessThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $updatedAtGreaterThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $updatedAtLessThanOrEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $partnerIdEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $partnerIdIn = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $isDefaultEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $isDefaultIn = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProviderStatus
-	 */
-	public $statusEqual = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $statusIn = null;
-
-
-}
-
-class KalturaGenericDistributionProviderFilter extends KalturaGenericDistributionProviderBaseFilter
-{
-
-}
-
-class KalturaGenericDistributionProviderListResponse extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var array of KalturaGenericDistributionProvider
-	 * @readonly
-	 */
-	public $objects;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $totalCount = null;
-
-
-}
-
-class KalturaGenericDistributionProviderAction extends KalturaObjectBase
-{
-	/**
-	 * Auto generated
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $id = null;
-
-	/**
-	 * Generic distribution provider action creation date as Unix timestamp (In seconds)
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $createdAt = null;
-
-	/**
-	 * Generic distribution provider action last update date as Unix timestamp (In seconds)
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $updatedAt = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @insertonly
-	 */
-	public $genericDistributionProviderId = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaDistributionAction
-	 * @insertonly
-	 */
-	public $action = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProviderStatus
-	 * @readonly
-	 */
-	public $status = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProviderParser
-	 */
-	public $resultsParser = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaDistributionProtocol
-	 */
-	public $protocol = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $serverAddress = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $remotePath = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $remoteUsername = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $remotePassword = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $editableFields = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $mandatoryFields = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 * @readonly
-	 */
-	public $mrssTransformer = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 * @readonly
-	 */
-	public $mrssValidator = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 * @readonly
-	 */
-	public $resultsTransformer = null;
-
-
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaGenericDistributionProviderActionBaseFilter extends KalturaFilter
 {
 	/**
@@ -1398,319 +2175,10 @@ abstract class KalturaGenericDistributionProviderActionBaseFilter extends Kaltur
 
 }
 
-class KalturaGenericDistributionProviderActionFilter extends KalturaGenericDistributionProviderActionBaseFilter
-{
-
-}
-
-class KalturaGenericDistributionProviderActionListResponse extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var array of KalturaGenericDistributionProviderAction
-	 * @readonly
-	 */
-	public $objects;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $totalCount = null;
-
-
-}
-
-class KalturaContentDistributionSearchItem extends KalturaSearchItem
-{
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $noDistributionProfiles = null;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $distributionProfileId = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaEntryDistributionSunStatus
-	 */
-	public $distributionSunStatus = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaEntryDistributionFlag
-	 */
-	public $entryDistributionFlag = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaEntryDistributionStatus
-	 */
-	public $entryDistributionStatus = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $hasEntryDistributionValidationErrors = null;
-
-	/**
-	 * Comma seperated validation error types
-	 *
-	 * @var string
-	 */
-	public $entryDistributionValidationErrors = null;
-
-
-}
-
-abstract class KalturaConfigurableDistributionProfileBaseFilter extends KalturaDistributionProfileFilter
-{
-
-}
-
-abstract class KalturaGenericDistributionProfileBaseFilter extends KalturaDistributionProfileFilter
-{
-
-}
-
-abstract class KalturaSyndicationDistributionProfileBaseFilter extends KalturaDistributionProfileFilter
-{
-
-}
-
-abstract class KalturaSyndicationDistributionProviderBaseFilter extends KalturaDistributionProviderFilter
-{
-
-}
-
-class KalturaConfigurableDistributionProfileFilter extends KalturaConfigurableDistributionProfileBaseFilter
-{
-
-}
-
-class KalturaGenericDistributionProfileFilter extends KalturaGenericDistributionProfileBaseFilter
-{
-
-}
-
-class KalturaSyndicationDistributionProfileFilter extends KalturaSyndicationDistributionProfileBaseFilter
-{
-
-}
-
-class KalturaSyndicationDistributionProviderFilter extends KalturaSyndicationDistributionProviderBaseFilter
-{
-
-}
-
-class KalturaDistributionFieldConfig extends KalturaObjectBase
-{
-	/**
-	 * A value taken from a connector field enum which associates the current configuration to that connector field
-	 * Field enum class should be returned by the provider's getFieldEnumClass function.
-	 *
-	 * @var string
-	 */
-	public $fieldName = null;
-
-	/**
-	 * A string that will be shown to the user as the field name in error messages related to the current field
-	 *
-	 * @var string
-	 */
-	public $userFriendlyFieldName = null;
-
-	/**
-	 * An XSLT string that extracts the right value from the Kaltura entry MRSS XML.
-	 * The value of the current connector field will be the one that is returned from transforming the Kaltura entry MRSS XML using this XSLT string.
-	 *
-	 * @var string
-	 */
-	public $entryMrssXslt = null;
-
-	/**
-	 * Is the field required to have a value for submission ?
-	 *
-	 * @var KalturaDistributionFieldRequiredStatus
-	 */
-	public $isRequired = null;
-
-	/**
-	 * Trigger distribution update when this field changes or not ?
-	 *
-	 * @var bool
-	 */
-	public $updateOnChange = null;
-
-	/**
-	 * Entry column or metadata xpath that should trigger an update
-	 * TODO: find a better solution for this
-	 *
-	 * @var array of KalturaString
-	 */
-	public $updateParams;
-
-	/**
-	 * Is this field config is the default for the distribution provider?
-	 *
-	 * @var bool
-	 * @readonly
-	 */
-	public $isDefault = null;
-
-
-}
-
-abstract class KalturaConfigurableDistributionProfile extends KalturaDistributionProfile
-{
-	/**
-	 * 
-	 *
-	 * @var array of KalturaDistributionFieldConfig
-	 */
-	public $fieldConfigArray;
-
-	/**
-	 * 
-	 *
-	 * @var array of KalturaString
-	 */
-	public $itemXpathsToExtend;
-
-
-}
-
-class KalturaGenericDistributionProfileAction extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var KalturaDistributionProtocol
-	 */
-	public $protocol = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $serverUrl = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $serverPath = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $username = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $password = null;
-
-	/**
-	 * 
-	 *
-	 * @var bool
-	 */
-	public $ftpPassiveMode = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $httpFieldName = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $httpFileName = null;
-
-
-}
-
-class KalturaGenericDistributionProfile extends KalturaDistributionProfile
-{
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @insertonly
-	 */
-	public $genericProviderId = null;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProfileAction
-	 */
-	public $submitAction;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProfileAction
-	 */
-	public $updateAction;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProfileAction
-	 */
-	public $deleteAction;
-
-	/**
-	 * 
-	 *
-	 * @var KalturaGenericDistributionProfileAction
-	 */
-	public $fetchReportAction;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $updateRequiredEntryFields = null;
-
-	/**
-	 * 
-	 *
-	 * @var string
-	 */
-	public $updateRequiredMetadataXPaths = null;
-
-
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaSyndicationDistributionProfile extends KalturaDistributionProfile
 {
 	/**
@@ -1731,33 +2199,87 @@ class KalturaSyndicationDistributionProfile extends KalturaDistributionProfile
 
 }
 
-class KalturaDistributionValidationErrorInvalidData extends KalturaDistributionValidationError
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaSyndicationDistributionProvider extends KalturaDistributionProvider
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionDeleteJobData extends KalturaDistributionJobData
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionFetchReportJobData extends KalturaDistributionJobData
 {
 	/**
 	 * 
 	 *
-	 * @var string
+	 * @var int
 	 */
-	public $fieldName = null;
+	public $plays = null;
 
 	/**
 	 * 
 	 *
-	 * @var KalturaDistributionValidationErrorType
+	 * @var int
 	 */
-	public $validationErrorType = null;
-
-	/**
-	 * Parameter of the validation error
-	 * For example, minimum value for KalturaDistributionValidationErrorType::STRING_TOO_SHORT validation error
-	 *
-	 * @var string
-	 */
-	public $validationErrorParam = null;
+	public $views = null;
 
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionProfileFilter extends KalturaDistributionProfileBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionProviderFilter extends KalturaDistributionProviderBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionSubmitJobData extends KalturaDistributionJobData
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionUpdateJobData extends KalturaDistributionJobData
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionValidationErrorInvalidMetadata extends KalturaDistributionValidationErrorInvalidData
 {
 	/**
@@ -1770,48 +2292,221 @@ class KalturaDistributionValidationErrorInvalidMetadata extends KalturaDistribut
 
 }
 
-class KalturaDistributionValidationErrorMissingFlavor extends KalturaDistributionValidationError
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaEntryDistributionFilter extends KalturaEntryDistributionBaseFilter
 {
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderActionFilter extends KalturaGenericDistributionProviderActionBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaConfigurableDistributionProfileBaseFilter extends KalturaDistributionProfileFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionDisableJobData extends KalturaDistributionUpdateJobData
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDistributionEnableJobData extends KalturaDistributionUpdateJobData
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaGenericDistributionProfileBaseFilter extends KalturaDistributionProfileFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaGenericDistributionProviderBaseFilter extends KalturaDistributionProviderFilter
+{
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $idEqual = null;
+
 	/**
 	 * 
 	 *
 	 * @var string
 	 */
-	public $flavorParamsId = null;
+	public $idIn = null;
 
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $createdAtGreaterThanOrEqual = null;
 
-}
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $createdAtLessThanOrEqual = null;
 
-class KalturaDistributionValidationErrorMissingMetadata extends KalturaDistributionValidationError
-{
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $updatedAtGreaterThanOrEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $updatedAtLessThanOrEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $partnerIdEqual = null;
+
 	/**
 	 * 
 	 *
 	 * @var string
 	 */
-	public $fieldName = null;
+	public $partnerIdIn = null;
 
-
-}
-
-class KalturaDistributionValidationErrorMissingThumbnail extends KalturaDistributionValidationError
-{
 	/**
 	 * 
 	 *
-	 * @var KalturaDistributionThumbDimensions
+	 * @var KalturaNullableBoolean
 	 */
-	public $dimensions;
+	public $isDefaultEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $isDefaultIn = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaGenericDistributionProviderStatus
+	 */
+	public $statusEqual = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $statusIn = null;
 
 
 }
 
-class KalturaSyndicationDistributionProvider extends KalturaDistributionProvider
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaSyndicationDistributionProfileBaseFilter extends KalturaDistributionProfileFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaSyndicationDistributionProviderBaseFilter extends KalturaDistributionProviderFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaConfigurableDistributionProfileFilter extends KalturaConfigurableDistributionProfileBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProfileFilter extends KalturaGenericDistributionProfileBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaGenericDistributionProviderFilter extends KalturaGenericDistributionProviderBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaSyndicationDistributionProfileFilter extends KalturaSyndicationDistributionProfileBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaSyndicationDistributionProviderFilter extends KalturaSyndicationDistributionProviderBaseFilter
 {
 
 }
 
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionProfileService extends KalturaServiceBase
 {
 	function __construct(KalturaClient $client = null)
@@ -1819,6 +2514,12 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		parent::__construct($client);
 	}
 
+	/**
+	 * Add new Distribution Profile
+	 * 
+	 * @param KalturaDistributionProfile $distributionProfile 
+	 * @return KalturaDistributionProfile
+	 */
 	function add(KalturaDistributionProfile $distributionProfile)
 	{
 		$kparams = array();
@@ -1832,6 +2533,12 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Get Distribution Profile by id
+	 * 
+	 * @param int $id 
+	 * @return KalturaDistributionProfile
+	 */
 	function get($id)
 	{
 		$kparams = array();
@@ -1845,6 +2552,13 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update Distribution Profile by id
+	 * 
+	 * @param int $id 
+	 * @param KalturaDistributionProfile $distributionProfile 
+	 * @return KalturaDistributionProfile
+	 */
 	function update($id, KalturaDistributionProfile $distributionProfile)
 	{
 		$kparams = array();
@@ -1859,6 +2573,13 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update Distribution Profile status by id
+	 * 
+	 * @param int $id 
+	 * @param int $status 
+	 * @return KalturaDistributionProfile
+	 */
 	function updateStatus($id, $status)
 	{
 		$kparams = array();
@@ -1873,6 +2594,12 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Delete Distribution Profile by id
+	 * 
+	 * @param int $id 
+	 * @return 
+	 */
 	function delete($id)
 	{
 		$kparams = array();
@@ -1886,6 +2613,13 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * List all distribution providers
+	 * 
+	 * @param KalturaDistributionProfileFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaDistributionProfileListResponse
+	 */
 	function listAction(KalturaDistributionProfileFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -1902,6 +2636,13 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param KalturaPartnerFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaDistributionProfileListResponse
+	 */
 	function listByPartner(KalturaPartnerFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -1919,6 +2660,10 @@ class KalturaDistributionProfileService extends KalturaServiceBase
 	}
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaEntryDistributionService extends KalturaServiceBase
 {
 	function __construct(KalturaClient $client = null)
@@ -1926,6 +2671,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		parent::__construct($client);
 	}
 
+	/**
+	 * Add new Entry Distribution
+	 * 
+	 * @param KalturaEntryDistribution $entryDistribution 
+	 * @return KalturaEntryDistribution
+	 */
 	function add(KalturaEntryDistribution $entryDistribution)
 	{
 		$kparams = array();
@@ -1939,6 +2690,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Get Entry Distribution by id
+	 * 
+	 * @param int $id 
+	 * @return KalturaEntryDistribution
+	 */
 	function get($id)
 	{
 		$kparams = array();
@@ -1952,6 +2709,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Validates Entry Distribution by id for submission
+	 * 
+	 * @param int $id 
+	 * @return KalturaEntryDistribution
+	 */
 	function validate($id)
 	{
 		$kparams = array();
@@ -1965,6 +2728,13 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update Entry Distribution by id
+	 * 
+	 * @param int $id 
+	 * @param KalturaEntryDistribution $entryDistribution 
+	 * @return KalturaEntryDistribution
+	 */
 	function update($id, KalturaEntryDistribution $entryDistribution)
 	{
 		$kparams = array();
@@ -1979,6 +2749,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Delete Entry Distribution by id
+	 * 
+	 * @param int $id 
+	 * @return 
+	 */
 	function delete($id)
 	{
 		$kparams = array();
@@ -1992,6 +2768,13 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * List all distribution providers
+	 * 
+	 * @param KalturaEntryDistributionFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaEntryDistributionListResponse
+	 */
 	function listAction(KalturaEntryDistributionFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -2008,6 +2791,13 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Submits Entry Distribution to the remote destination
+	 * 
+	 * @param int $id 
+	 * @param bool $submitWhenReady 
+	 * @return KalturaEntryDistribution
+	 */
 	function submitAdd($id, $submitWhenReady = false)
 	{
 		$kparams = array();
@@ -2022,6 +2812,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Submits Entry Distribution changes to the remote destination
+	 * 
+	 * @param int $id 
+	 * @return KalturaEntryDistribution
+	 */
 	function submitUpdate($id)
 	{
 		$kparams = array();
@@ -2035,6 +2831,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Submits Entry Distribution report request
+	 * 
+	 * @param int $id 
+	 * @return KalturaEntryDistribution
+	 */
 	function submitFetchReport($id)
 	{
 		$kparams = array();
@@ -2048,6 +2850,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Deletes Entry Distribution from the remote destination
+	 * 
+	 * @param int $id 
+	 * @return KalturaEntryDistribution
+	 */
 	function submitDelete($id)
 	{
 		$kparams = array();
@@ -2061,6 +2869,12 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Retries last submit action
+	 * 
+	 * @param int $id 
+	 * @return KalturaEntryDistribution
+	 */
 	function retrySubmit($id)
 	{
 		$kparams = array();
@@ -2074,27 +2888,47 @@ class KalturaEntryDistributionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Serves entry distribution sent data
+	 * 
+	 * @param int $id 
+	 * @param int $actionType 
+	 * @return file
+	 */
 	function serveSentData($id, $actionType)
 	{
 		$kparams = array();
 		$this->client->addParam($kparams, "id", $id);
 		$this->client->addParam($kparams, "actionType", $actionType);
-		$this->client->queueServiceActionCall('contentdistribution_entrydistribution', 'serveSentData', $kparams);
-		$resultObject = $this->client->getServeUrl();
-		return $resultObject;
+		$this->client->queueServiceActionCall("contentdistribution_entrydistribution", "serveSentData", $kparams);
+		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
+			return $this->client->getServeUrl();
+		return $this->client->doQueue();
 	}
 
+	/**
+	 * Serves entry distribution returned data
+	 * 
+	 * @param int $id 
+	 * @param int $actionType 
+	 * @return file
+	 */
 	function serveReturnedData($id, $actionType)
 	{
 		$kparams = array();
 		$this->client->addParam($kparams, "id", $id);
 		$this->client->addParam($kparams, "actionType", $actionType);
-		$this->client->queueServiceActionCall('contentdistribution_entrydistribution', 'serveReturnedData', $kparams);
-		$resultObject = $this->client->getServeUrl();
-		return $resultObject;
+		$this->client->queueServiceActionCall("contentdistribution_entrydistribution", "serveReturnedData", $kparams);
+		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
+			return $this->client->getServeUrl();
+		return $this->client->doQueue();
 	}
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDistributionProviderService extends KalturaServiceBase
 {
 	function __construct(KalturaClient $client = null)
@@ -2102,6 +2936,13 @@ class KalturaDistributionProviderService extends KalturaServiceBase
 		parent::__construct($client);
 	}
 
+	/**
+	 * List all distribution providers
+	 * 
+	 * @param KalturaDistributionProviderFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaDistributionProviderListResponse
+	 */
 	function listAction(KalturaDistributionProviderFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -2119,6 +2960,10 @@ class KalturaDistributionProviderService extends KalturaServiceBase
 	}
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaGenericDistributionProviderService extends KalturaServiceBase
 {
 	function __construct(KalturaClient $client = null)
@@ -2126,6 +2971,12 @@ class KalturaGenericDistributionProviderService extends KalturaServiceBase
 		parent::__construct($client);
 	}
 
+	/**
+	 * Add new Generic Distribution Provider
+	 * 
+	 * @param KalturaGenericDistributionProvider $genericDistributionProvider 
+	 * @return KalturaGenericDistributionProvider
+	 */
 	function add(KalturaGenericDistributionProvider $genericDistributionProvider)
 	{
 		$kparams = array();
@@ -2139,6 +2990,12 @@ class KalturaGenericDistributionProviderService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Get Generic Distribution Provider by id
+	 * 
+	 * @param int $id 
+	 * @return KalturaGenericDistributionProvider
+	 */
 	function get($id)
 	{
 		$kparams = array();
@@ -2152,6 +3009,13 @@ class KalturaGenericDistributionProviderService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update Generic Distribution Provider by id
+	 * 
+	 * @param int $id 
+	 * @param KalturaGenericDistributionProvider $genericDistributionProvider 
+	 * @return KalturaGenericDistributionProvider
+	 */
 	function update($id, KalturaGenericDistributionProvider $genericDistributionProvider)
 	{
 		$kparams = array();
@@ -2166,6 +3030,12 @@ class KalturaGenericDistributionProviderService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Delete Generic Distribution Provider by id
+	 * 
+	 * @param int $id 
+	 * @return 
+	 */
 	function delete($id)
 	{
 		$kparams = array();
@@ -2179,6 +3049,13 @@ class KalturaGenericDistributionProviderService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * List all distribution providers
+	 * 
+	 * @param KalturaGenericDistributionProviderFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaGenericDistributionProviderListResponse
+	 */
 	function listAction(KalturaGenericDistributionProviderFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -2196,6 +3073,10 @@ class KalturaGenericDistributionProviderService extends KalturaServiceBase
 	}
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 {
 	function __construct(KalturaClient $client = null)
@@ -2203,6 +3084,12 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		parent::__construct($client);
 	}
 
+	/**
+	 * Add new Generic Distribution Provider Action
+	 * 
+	 * @param KalturaGenericDistributionProviderAction $genericDistributionProviderAction 
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function add(KalturaGenericDistributionProviderAction $genericDistributionProviderAction)
 	{
 		$kparams = array();
@@ -2216,6 +3103,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Add MRSS transform file to generic distribution provider action
+	 * 
+	 * @param int $id The id of the generic distribution provider action
+	 * @param string $xslData XSL MRSS transformation data
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function addMrssTransform($id, $xslData)
 	{
 		$kparams = array();
@@ -2230,6 +3124,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Add MRSS transform file to generic distribution provider action
+	 * 
+	 * @param int $id The id of the generic distribution provider action
+	 * @param file $xslFile XSL MRSS transformation file
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function addMrssTransformFromFile($id, $xslFile)
 	{
 		$kparams = array();
@@ -2245,6 +3146,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Add MRSS validate file to generic distribution provider action
+	 * 
+	 * @param int $id The id of the generic distribution provider action
+	 * @param string $xsdData XSD MRSS validatation data
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function addMrssValidate($id, $xsdData)
 	{
 		$kparams = array();
@@ -2259,6 +3167,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Add MRSS validate file to generic distribution provider action
+	 * 
+	 * @param int $id The id of the generic distribution provider action
+	 * @param file $xsdFile XSD MRSS validatation file
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function addMrssValidateFromFile($id, $xsdFile)
 	{
 		$kparams = array();
@@ -2274,6 +3189,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Add results transform file to generic distribution provider action
+	 * 
+	 * @param int $id The id of the generic distribution provider action
+	 * @param string $transformData Transformation data xsl, xPath or regex
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function addResultsTransform($id, $transformData)
 	{
 		$kparams = array();
@@ -2288,6 +3210,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Add MRSS transform file to generic distribution provider action
+	 * 
+	 * @param int $id The id of the generic distribution provider action
+	 * @param file $transformFile Transformation file xsl, xPath or regex
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function addResultsTransformFromFile($id, $transformFile)
 	{
 		$kparams = array();
@@ -2303,6 +3232,12 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Get Generic Distribution Provider Action by id
+	 * 
+	 * @param int $id 
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function get($id)
 	{
 		$kparams = array();
@@ -2316,6 +3251,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Get Generic Distribution Provider Action by provider id
+	 * 
+	 * @param int $genericDistributionProviderId 
+	 * @param int $actionType 
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function getByProviderId($genericDistributionProviderId, $actionType)
 	{
 		$kparams = array();
@@ -2330,6 +3272,14 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update Generic Distribution Provider Action by provider id
+	 * 
+	 * @param int $genericDistributionProviderId 
+	 * @param int $actionType 
+	 * @param KalturaGenericDistributionProviderAction $genericDistributionProviderAction 
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function updateByProviderId($genericDistributionProviderId, $actionType, KalturaGenericDistributionProviderAction $genericDistributionProviderAction)
 	{
 		$kparams = array();
@@ -2345,6 +3295,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update Generic Distribution Provider Action by id
+	 * 
+	 * @param int $id 
+	 * @param KalturaGenericDistributionProviderAction $genericDistributionProviderAction 
+	 * @return KalturaGenericDistributionProviderAction
+	 */
 	function update($id, KalturaGenericDistributionProviderAction $genericDistributionProviderAction)
 	{
 		$kparams = array();
@@ -2359,6 +3316,12 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Delete Generic Distribution Provider Action by id
+	 * 
+	 * @param int $id 
+	 * @return 
+	 */
 	function delete($id)
 	{
 		$kparams = array();
@@ -2372,6 +3335,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Delete Generic Distribution Provider Action by provider id
+	 * 
+	 * @param int $genericDistributionProviderId 
+	 * @param int $actionType 
+	 * @return 
+	 */
 	function deleteByProviderId($genericDistributionProviderId, $actionType)
 	{
 		$kparams = array();
@@ -2386,6 +3356,13 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * List all distribution providers
+	 * 
+	 * @param KalturaGenericDistributionProviderActionFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaGenericDistributionProviderActionListResponse
+	 */
 	function listAction(KalturaGenericDistributionProviderActionFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -2402,35 +3379,12 @@ class KalturaGenericDistributionProviderActionService extends KalturaServiceBase
 		return $resultObject;
 	}
 }
-
-class KalturaTvComService extends KalturaServiceBase
-{
-	function __construct(KalturaClient $client = null)
-	{
-		parent::__construct($client);
-	}
-
-	function getFeed($distributionProfileId, $hash)
-	{
-		$kparams = array();
-		$this->client->addParam($kparams, "distributionProfileId", $distributionProfileId);
-		$this->client->addParam($kparams, "hash", $hash);
-		$this->client->queueServiceActionCall("tvcomdistribution_tvcom", "getFeed", $kparams);
-		if ($this->client->isMultiRequest())
-			return $this->client->getMultiRequestResult();
-		$resultObject = $this->client->doQueue();
-		$this->client->throwExceptionIfError($resultObject);
-		$this->client->validateObjectType($resultObject, "null");
-		return $resultObject;
-	}
-}
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaContentDistributionClientPlugin extends KalturaClientPlugin
 {
-	/**
-	 * @var KalturaContentDistributionClientPlugin
-	 */
-	protected static $instance;
-
 	/**
 	 * @var KalturaDistributionProfileService
 	 */
@@ -2471,9 +3425,7 @@ class KalturaContentDistributionClientPlugin extends KalturaClientPlugin
 	 */
 	public static function get(KalturaClient $client)
 	{
-		if(!self::$instance)
-			self::$instance = new KalturaContentDistributionClientPlugin($client);
-		return self::$instance;
+		return new KalturaContentDistributionClientPlugin($client);
 	}
 
 	/**
