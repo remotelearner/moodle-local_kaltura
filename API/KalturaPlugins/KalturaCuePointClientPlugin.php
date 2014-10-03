@@ -1,33 +1,81 @@
 <?php
+// ===================================================================================================
+//                           _  __     _ _
+//                          | |/ /__ _| | |_ _  _ _ _ __ _
+//                          | ' </ _` | |  _| || | '_/ _` |
+//                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
+//
+// This file is part of the Kaltura Collaborative Media Suite which allows users
+// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// text.
+//
+// Copyright (C) 2006-2011  Kaltura Inc.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// @ignore
+// ===================================================================================================
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 require_once(dirname(__FILE__) . "/../KalturaClientBase.php");
 require_once(dirname(__FILE__) . "/../KalturaEnums.php");
 require_once(dirname(__FILE__) . "/../KalturaTypes.php");
 
-class KalturaCuePointOrderBy
-{
-	const CREATED_AT_ASC = "+createdAt";
-	const CREATED_AT_DESC = "-createdAt";
-	const UPDATED_AT_ASC = "+updatedAt";
-	const UPDATED_AT_DESC = "-updatedAt";
-	const START_TIME_ASC = "+startTime";
-	const START_TIME_DESC = "-startTime";
-	const PARTNER_SORT_VALUE_ASC = "+partnerSortValue";
-	const PARTNER_SORT_VALUE_DESC = "-partnerSortValue";
-}
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaCuePointStatus
 {
 	const READY = 1;
 	const DELETED = 2;
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaCuePointOrderBy
+{
+	const CREATED_AT_ASC = "+createdAt";
+	const PARTNER_SORT_VALUE_ASC = "+partnerSortValue";
+	const START_TIME_ASC = "+startTime";
+	const UPDATED_AT_ASC = "+updatedAt";
+	const CREATED_AT_DESC = "-createdAt";
+	const PARTNER_SORT_VALUE_DESC = "-partnerSortValue";
+	const START_TIME_DESC = "-startTime";
+	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaCuePointType
 {
-	const ANNOTATION = "annotation.Annotation";
 	const AD = "adCuePoint.Ad";
+	const ANNOTATION = "annotation.Annotation";
 	const CODE = "codeCuePoint.Code";
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaCuePoint extends KalturaObjectBase
 {
 	/**
@@ -94,7 +142,8 @@ abstract class KalturaCuePoint extends KalturaObjectBase
 	public $tags = null;
 
 	/**
-	 * Start tim ein milliseconds
+	 * Start time in milliseconds
+	 * 	 
 	 *
 	 * @var int
 	 */
@@ -146,6 +195,35 @@ abstract class KalturaCuePoint extends KalturaObjectBase
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaCuePointListResponse extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var array of KalturaCuePoint
+	 * @readonly
+	 */
+	public $objects;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $totalCount = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaCuePointBaseFilter extends KalturaFilter
 {
 	/**
@@ -333,33 +411,20 @@ abstract class KalturaCuePointBaseFilter extends KalturaFilter
 
 }
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaCuePointFilter extends KalturaCuePointBaseFilter
 {
 
 }
 
-class KalturaCuePointListResponse extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var array of KalturaCuePoint
-	 * @readonly
-	 */
-	public $objects;
 
-	/**
-	 * 
-	 *
-	 * @var int
-	 * @readonly
-	 */
-	public $totalCount = null;
-
-
-}
-
-
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaCuePointService extends KalturaServiceBase
 {
 	function __construct(KalturaClient $client = null)
@@ -367,6 +432,12 @@ class KalturaCuePointService extends KalturaServiceBase
 		parent::__construct($client);
 	}
 
+	/**
+	 * Allows you to add an cue point object associated with an entry
+	 * 
+	 * @param KalturaCuePoint $cuePoint 
+	 * @return KalturaCuePoint
+	 */
 	function add(KalturaCuePoint $cuePoint)
 	{
 		$kparams = array();
@@ -380,6 +451,12 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Allows you to add multiple cue points objects by uploading XML that contains multiple cue point definitions
+	 * 
+	 * @param file $fileData 
+	 * @return KalturaCuePointListResponse
+	 */
 	function addFromBulk($fileData)
 	{
 		$kparams = array();
@@ -394,6 +471,13 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Download multiple cue points objects as XML definitions
+	 * 
+	 * @param KalturaCuePointFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return file
+	 */
 	function serveBulk(KalturaCuePointFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -401,11 +485,18 @@ class KalturaCuePointService extends KalturaServiceBase
 			$this->client->addParam($kparams, "filter", $filter->toParams());
 		if ($pager !== null)
 			$this->client->addParam($kparams, "pager", $pager->toParams());
-		$this->client->queueServiceActionCall('cuepoint_cuepoint', 'serveBulk', $kparams);
-		$resultObject = $this->client->getServeUrl();
-		return $resultObject;
+		$this->client->queueServiceActionCall("cuepoint_cuepoint", "serveBulk", $kparams);
+		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
+			return $this->client->getServeUrl();
+		return $this->client->doQueue();
 	}
 
+	/**
+	 * Retrieve an CuePoint object by id
+	 * 
+	 * @param string $id 
+	 * @return KalturaCuePoint
+	 */
 	function get($id)
 	{
 		$kparams = array();
@@ -419,6 +510,13 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * List cue point objects by filter and pager
+	 * 
+	 * @param KalturaCuePointFilter $filter 
+	 * @param KalturaFilterPager $pager 
+	 * @return KalturaCuePointListResponse
+	 */
 	function listAction(KalturaCuePointFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		$kparams = array();
@@ -435,6 +533,12 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Count cue point objects by filter
+	 * 
+	 * @param KalturaCuePointFilter $filter 
+	 * @return int
+	 */
 	function count(KalturaCuePointFilter $filter = null)
 	{
 		$kparams = array();
@@ -449,6 +553,13 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Update cue point by id
+	 * 
+	 * @param string $id 
+	 * @param KalturaCuePoint $cuePoint 
+	 * @return KalturaCuePoint
+	 */
 	function update($id, KalturaCuePoint $cuePoint)
 	{
 		$kparams = array();
@@ -463,6 +574,12 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 
+	/**
+	 * Delete cue point by id, and delete all children cue points
+	 * 
+	 * @param string $id 
+	 * @return 
+	 */
 	function delete($id)
 	{
 		$kparams = array();
@@ -476,13 +593,12 @@ class KalturaCuePointService extends KalturaServiceBase
 		return $resultObject;
 	}
 }
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaCuePointClientPlugin extends KalturaClientPlugin
 {
-	/**
-	 * @var KalturaCuePointClientPlugin
-	 */
-	protected static $instance;
-
 	/**
 	 * @var KalturaCuePointService
 	 */
@@ -499,9 +615,7 @@ class KalturaCuePointClientPlugin extends KalturaClientPlugin
 	 */
 	public static function get(KalturaClient $client)
 	{
-		if(!self::$instance)
-			self::$instance = new KalturaCuePointClientPlugin($client);
-		return self::$instance;
+		return new KalturaCuePointClientPlugin($client);
 	}
 
 	/**
